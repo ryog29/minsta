@@ -12,9 +12,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: lint and test
+      - name: install
         run: |
           npm install
+          npm install -g firebase-tools
+      - name: lint and test
+        run: |
           npm run lint
           npm run test
       - run: npm run build:dev
