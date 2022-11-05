@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "minsta-6885e"
+    "prod": "minsta-6885e",
+    "dev": "minsta-dev"
   }
 }
