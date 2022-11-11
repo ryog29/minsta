@@ -2,6 +2,9 @@ import { collection, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { Stamp } from '../types';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { LatLng } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const Home = () => {
   const [stamps, setStamps] = useState<Stamp[]>([]);
@@ -26,24 +29,40 @@ const Home = () => {
     });
   }, []);
 
+  // [TODO] 現在地座標に置き換える
+  const curLoc = new LatLng(35.681512, 139.765253);
+
   return (
-    <div>
-      {stamps.map((stamp) => (
-        <div key={stamp.id}>
-          <p>---------------------------------------</p>
-          <p>id: {stamp.id}</p>
-          <p>name: {stamp.name}</p>
-          <p>
-            coordinates: {stamp.coordinates.latitude},
-            {stamp.coordinates.longitude}
-          </p>
-          <p>address: {stamp.address}</p>
-          <p>imageUrl: {stamp.imageUrl}</p>
-          <p>createdBy: {stamp.createdBy}</p>
-          <p>createdAt: {stamp.createdAt.toString()}</p>
-          <p>stampedCount: {stamp.stampedCount}</p>
-        </div>
-      ))}
+    <div className='map-display'>
+      <MapContainer center={curLoc} zoom={13} zoomControl={false}>
+        <TileLayer
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        />
+        {stamps.map((stamp) => (
+          <Marker
+            key={stamp.id}
+            position={
+              new LatLng(
+                stamp.coordinates.latitude,
+                stamp.coordinates.longitude
+              )
+            }
+          >
+            <Popup>
+              <ul>
+                <li>id: {stamp.id}</li>
+                <li>name: {stamp.name}</li>
+                <li>address: {stamp.address}</li>
+                <li>createdBy: {stamp.createdBy}</li>
+                <li>createdAt: {stamp.createdAt.toDate().toString()}</li>
+                <li>stampedCount: {stamp.stampedCount}</li>
+              </ul>
+              <img className='stamp-image' src={stamp.imageUrl}></img>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 };
