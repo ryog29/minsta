@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { Stamp } from '../types';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { LatLng } from 'leaflet';
+import { Icon, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const Home = () => {
@@ -34,7 +34,13 @@ const Home = () => {
 
   return (
     <div className='map-display'>
-      <MapContainer center={curLoc} zoom={13} zoomControl={false}>
+      <MapContainer
+        center={curLoc}
+        zoom={15}
+        maxZoom={24}
+        minZoom={5}
+        zoomControl={false}
+      >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -47,6 +53,12 @@ const Home = () => {
                 stamp.coordinates.latitude,
                 stamp.coordinates.longitude
               )
+            }
+            icon={
+              new Icon({
+                iconUrl: stamp.imageUrl,
+                iconSize: [50, 50],
+              })
             }
           >
             <Popup>
