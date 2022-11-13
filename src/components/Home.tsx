@@ -31,6 +31,7 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
             createdBy: doc.data().createdBy,
             createdAt: doc.data().createdAt,
             stampedCount: doc.data().stampedCount,
+            isStamped: false,
           };
         })
       );
@@ -82,6 +83,9 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
               new Icon({
                 iconUrl: stamp.imageUrl,
                 iconSize: [50, 50],
+                className: stamp.isStamped
+                  ? 'stamped-icon'
+                  : 'not-stamped-icon',
               })
             }
           >

@@ -41,3 +41,9 @@ body {
   width: 150px;
   height: 150px;
 }
+
+/* .stamped-icon {} */
+
+.not-stamped-icon { 
+  filter: grayscale(100%);
+}

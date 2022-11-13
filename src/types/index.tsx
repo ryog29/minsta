@@ -9,4 +9,5 @@ export type Stamp = {
   createdBy: string;
   createdAt: Timestamp;
   stampedCount: number;
+  isStamped: boolean;
 };
