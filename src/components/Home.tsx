@@ -60,9 +60,9 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
     <div className='map-display'>
       <MapContainer
         center={location}
-        zoom={15}
-        maxZoom={24}
-        minZoom={5}
+        zoom={16}
+        maxZoom={18}
+        minZoom={6}
         zoomControl={false}
       >
         <TileLayer
