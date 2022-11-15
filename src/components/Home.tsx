@@ -2,20 +2,15 @@ import { collection, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { Stamp } from '../types';
-import {
-  Circle,
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-} from 'react-leaflet';
+import { Circle, MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import { Icon, LatLng, LatLngLiteral } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useNavigate } from 'react-router-dom';
 
 const Home = (props: { initLoc: LatLngLiteral }) => {
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [location, setLocation] = useState<LatLngLiteral>(props.initLoc);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stampsCollectionRef = collection(db, 'stamps');
@@ -31,7 +26,7 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
             createdBy: doc.data().createdBy,
             createdAt: doc.data().createdAt,
             stampedCount: doc.data().stampedCount,
-            isStamped: false,
+            isStamped: false, // TODO: indexedDB に問い合わせる
           };
         })
       );
@@ -82,25 +77,18 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
             icon={
               new Icon({
                 iconUrl: stamp.imageUrl,
-                iconSize: [50, 50],
+                iconSize: [70, 70],
                 className: stamp.isStamped
                   ? 'stamped-icon'
                   : 'not-stamped-icon',
               })
             }
-          >
-            <Popup>
-              <ul>
-                <li>id: {stamp.id}</li>
-                <li>name: {stamp.name}</li>
-                <li>address: {stamp.address}</li>
-                <li>createdBy: {stamp.createdBy}</li>
-                <li>createdAt: {stamp.createdAt.toDate().toString()}</li>
-                <li>stampedCount: {stamp.stampedCount}</li>
-              </ul>
-              <img className='stamp-image' src={stamp.imageUrl}></img>
-            </Popup>
-          </Marker>
+            eventHandlers={{
+              click: () => {
+                navigate(`/stamps/${stamp.id}`);
+              },
+            }}
+          ></Marker>
         ))}
         <LocationMarker />
       </MapContainer>

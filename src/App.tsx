@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import Home from './components/Home';
 import { LatLngLiteral } from 'leaflet';
+import { Route, Routes } from 'react-router-dom';
+import StampDetail from './components/StampDetail';
 
 const App = () => {
   // 位置情報の結果が取得できるまでレンダリングしない
@@ -34,7 +36,10 @@ const App = () => {
       {isReady && (
         <div className='App'>
           <h2 id='title'>minsta ({import.meta.env.MODE})</h2>
-          <Home initLoc={location} />
+          <Routes>
+            <Route path='/' element={<Home initLoc={location} />} />
+            <Route path='/stamps/:id' element={<StampDetail />} />
+          </Routes>
         </div>
       )}
     </>
