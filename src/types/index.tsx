@@ -11,3 +11,10 @@ export type Stamp = {
   stampedCount: number;
   isStamped: boolean;
 };
+
+export type StampIDB = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  stampedAt: Date;
+};

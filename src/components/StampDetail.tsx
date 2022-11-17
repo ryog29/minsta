@@ -2,6 +2,7 @@ import { collection, doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../firebase';
+import { idb } from '../idb';
 import { Stamp } from '../types';
 
 const StampDetail = () => {
@@ -14,9 +15,11 @@ const StampDetail = () => {
   const [stamp, setStamp] = useState<Stamp>();
 
   useEffect(() => {
-    const stampsCollectionRef = collection(db, 'stamps');
-    const stampDocRef = doc(stampsCollectionRef, id);
-    getDoc(stampDocRef).then((docSnap) => {
+    (async () => {
+      const isStamped = !!(await idb.stamps.get(id));
+      const stampsCollectionRef = collection(db, 'stamps');
+      const stampDocRef = doc(stampsCollectionRef, id);
+      const docSnap = await getDoc(stampDocRef);
       if (docSnap.exists()) {
         setStamp({
           id: docSnap.id,
@@ -27,13 +30,33 @@ const StampDetail = () => {
           createdBy: docSnap.data().createdBy,
           createdAt: docSnap.data().createdAt,
           stampedCount: docSnap.data().stampedCount,
-          isStamped: false, // TODO: indexedDB に問い合わせる
+          isStamped,
         });
       } else {
         console.warn(`Not found stamp (id:${id})`);
       }
-    });
+    })();
   }, []);
+
+  async function getStamp() {
+    if (!stamp) return;
+    try {
+      await idb.stamps.add({
+        id: stamp.id,
+        name: stamp.name,
+        imageUrl: stamp.imageUrl,
+        stampedAt: new Date(),
+      });
+      setStamp({
+        ...stamp,
+        stampedCount: stamp.stampedCount + 1,
+        isStamped: true,
+      });
+      // TODO: firestore の stampedCount を更新
+    } catch (error) {
+      console.warn(`Failed to add ${id}: ${error}`);
+    }
+  }
 
   return (
     <div className='stamp-detail'>
@@ -57,6 +80,9 @@ const StampDetail = () => {
           ></img>
         </div>
       )}
+      <button onClick={getStamp} disabled={stamp?.isStamped}>
+        スタンプを押す
+      </button>
     </div>
   );
 };

@@ -38,8 +38,8 @@ body {
 }
 
 .stamp-image {
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
 }
 
 /* .stamped-icon {} */
@@ -49,6 +49,12 @@ body {
 }
 
 .stamp-detail {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
+.collection {
   position: absolute;
   margin-top: 50px;
   margin-left: 10px;

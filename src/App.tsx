@@ -3,6 +3,7 @@ import Home from './components/Home';
 import { LatLngLiteral } from 'leaflet';
 import { Route, Routes } from 'react-router-dom';
 import StampDetail from './components/StampDetail';
+import Collection from './components/Collection';
 
 const App = () => {
   // 位置情報の結果が取得できるまでレンダリングしない
@@ -39,6 +40,7 @@ const App = () => {
           <Routes>
             <Route path='/' element={<Home initLoc={location} />} />
             <Route path='/stamps/:id' element={<StampDetail />} />
+            <Route path='/collection' element={<Collection />} />
           </Routes>
         </div>
       )}
