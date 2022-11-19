@@ -6,6 +6,7 @@ import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
+import { idb } from '../idb';
 
 const ZOOM_VALUES = {
   init: 16,
@@ -24,24 +25,27 @@ const Home = (props: {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const stampsCollectionRef = collection(db, 'stamps');
-    getDocs(stampsCollectionRef).then((querySnapshot) => {
+    (async () => {
+      const stampsCollectionRef = collection(db, 'stamps');
+      const querySnapshot = await getDocs(stampsCollectionRef);
       setStamps(
-        querySnapshot.docs.map((doc): Stamp => {
-          return {
-            id: doc.id,
-            name: doc.data().name,
-            coordinates: doc.data().coordinates,
-            address: doc.data().address,
-            imageUrl: doc.data().imageUrl,
-            createdBy: doc.data().createdBy,
-            createdAt: doc.data().createdAt,
-            stampedCount: doc.data().stampedCount,
-            isStamped: false, // TODO: indexedDB に問い合わせる
-          };
-        })
+        await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            return {
+              id: doc.id,
+              name: doc.data().name,
+              coordinates: doc.data().coordinates,
+              address: doc.data().address,
+              imageUrl: doc.data().imageUrl,
+              createdBy: doc.data().createdBy,
+              createdAt: doc.data().createdAt,
+              stampedCount: doc.data().stampedCount,
+              isStamped: !!(await idb.stamps.get(doc.id)),
+            };
+          })
+        )
       );
-    });
+    })();
   }, []);
 
   const LocationMarker = (props: { map: Map | null }) => {

@@ -21,7 +21,6 @@ const StampDetail = (props: {
 
   useEffect(() => {
     (async () => {
-      const isStamped = !!(await idb.stamps.get(id));
       const stampsCollectionRef = collection(db, 'stamps');
       const stampDocRef = doc(stampsCollectionRef, id);
       const docSnap = await getDoc(stampDocRef);
@@ -35,7 +34,7 @@ const StampDetail = (props: {
           createdBy: docSnap.data().createdBy,
           createdAt: docSnap.data().createdAt,
           stampedCount: docSnap.data().stampedCount,
-          isStamped,
+          isStamped: !!(await idb.stamps.get(id)),
         });
         // 地図の表示座標を更新する
         setDisplayLoc({
