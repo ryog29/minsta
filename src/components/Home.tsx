@@ -7,6 +7,12 @@ import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 
+const ZOOM_VALUES = {
+  init: 16,
+  max: 18,
+  min: 6,
+};
+
 const Home = (props: {
   displayLoc: LatLngLiteral;
   currentLoc: LatLngLiteral;
@@ -66,7 +72,7 @@ const Home = (props: {
     if (!map) return <></>;
 
     const onClick = useCallback(() => {
-      map.setView(currentLoc, map.getZoom());
+      map.setView(currentLoc, ZOOM_VALUES.init);
     }, [map]);
 
     return (
@@ -80,9 +86,9 @@ const Home = (props: {
     <div>
       <MapContainer
         center={props.displayLoc}
-        zoom={16}
-        maxZoom={18}
-        minZoom={6}
+        zoom={ZOOM_VALUES.init}
+        maxZoom={ZOOM_VALUES.max}
+        minZoom={ZOOM_VALUES.min}
         zoomControl={false}
         ref={setMap}
         className='map-display'
