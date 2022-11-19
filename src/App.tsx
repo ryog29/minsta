@@ -5,15 +5,21 @@ import { Route, Routes } from 'react-router-dom';
 import StampDetail from './components/StampDetail';
 import Collection from './components/Collection';
 
-const App = () => {
-  // 位置情報の結果が取得できるまでレンダリングしない
-  const [isReady, setIsReady] = useState(false);
-  // 位置情報が取得できない場合は東京駅を表示
-  const [location, setLocation] = useState<LatLngLiteral>({
-    lat: 35.6810848,
-    lng: 139.7650003,
-  });
+// 座標の初期値(東京駅)
+const initLoc: LatLngLiteral = {
+  lat: 35.6810848,
+  lng: 139.7650003,
+};
 
+const App = () => {
+  // 位置情報の取得が完了したかどうか
+  const [isReady, setIsReady] = useState(false);
+  // 表示中の座標
+  const [displayLoc, setDisplayLoc] = useState<LatLngLiteral>(initLoc);
+  // 現在地の座標
+  const [currentLoc, setCurrentLoc] = useState<LatLngLiteral>(initLoc);
+
+  // 現在地を取得
   useEffect(() => {
     if (!('geolocation' in navigator)) {
       console.warn(`Geolocation API is not supported`);
@@ -22,7 +28,8 @@ const App = () => {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setCurrentLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setDisplayLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setIsReady(true);
       },
       (err) => {
@@ -38,8 +45,14 @@ const App = () => {
         <div className='App'>
           <h2 id='title'>minsta ({import.meta.env.MODE})</h2>
           <Routes>
-            <Route path='/' element={<Home initLoc={location} />} />
-            <Route path='/stamps/:id' element={<StampDetail />} />
+            <Route
+              path='/'
+              element={<Home displayLoc={displayLoc} currentLoc={currentLoc} />}
+            />
+            <Route
+              path='/stamps/:id'
+              element={<StampDetail setDisplayLoc={setDisplayLoc} />}
+            />
             <Route path='/collection' element={<Collection />} />
           </Routes>
         </div>

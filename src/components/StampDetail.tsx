@@ -1,11 +1,16 @@
 import { collection, doc, getDoc } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { LatLngLiteral } from 'leaflet';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { idb } from '../idb';
 import { Stamp } from '../types';
 
-const StampDetail = () => {
+const StampDetail = (props: {
+  setDisplayLoc: Dispatch<SetStateAction<LatLngLiteral>>;
+}) => {
+  const { setDisplayLoc } = props;
+  const navigate = useNavigate();
   const { id } = useParams();
   if (!id) {
     console.warn(`No stamp id`);
@@ -31,6 +36,11 @@ const StampDetail = () => {
           createdAt: docSnap.data().createdAt,
           stampedCount: docSnap.data().stampedCount,
           isStamped,
+        });
+        // 地図の表示座標を更新する
+        setDisplayLoc({
+          lat: docSnap.data().coordinates.latitude,
+          lng: docSnap.data().coordinates.longitude,
         });
       } else {
         console.warn(`Not found stamp (id:${id})`);
@@ -60,6 +70,13 @@ const StampDetail = () => {
 
   return (
     <div className='stamp-detail'>
+      <button
+        onClick={() => {
+          navigate(`/`, { replace: true });
+        }}
+      >
+        戻る
+      </button>
       <h2>スタンプ詳細</h2>
       {stamp && (
         <div>

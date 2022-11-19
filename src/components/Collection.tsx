@@ -13,7 +13,7 @@ const Collection = () => {
         <div key={stamp.id}>
           <p>スタンプ名: {stamp.name}</p>
           <p>押した日時: {stamp.stampedAt.toISOString()}</p>
-          <Link to={`/stamps/${stamp.id}`}>
+          <Link to={`/stamps/${stamp.id}`} replace={true}>
             <img src={stamp.imageUrl} className='stamp-image'></img>
           </Link>
         </div>

@@ -7,7 +7,7 @@ export class StampDexie extends Dexie {
   constructor() {
     super('StampDB');
     this.version(1).stores({
-      stamps: '&id, name, imageUrl, stampedAt', // Primary key and indexed props
+      stamps: '&id, name, imageUrl, stampedAt',
     });
   }
 }

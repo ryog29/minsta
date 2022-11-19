@@ -1,15 +1,20 @@
 import { collection, getDocs } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { Stamp } from '../types';
-import { Circle, MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
-import { Icon, LatLng, LatLngLiteral } from 'leaflet';
+import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
+import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 
-const Home = (props: { initLoc: LatLngLiteral }) => {
+const Home = (props: {
+  displayLoc: LatLngLiteral;
+  currentLoc: LatLngLiteral;
+}) => {
   const [stamps, setStamps] = useState<Stamp[]>([]);
-  const [location, setLocation] = useState<LatLngLiteral>(props.initLoc);
+  const [map, setMap] = useState<Map | null>(null);
+  const [currentLoc, setCurrentLoc] = useState<LatLngLiteral>(props.currentLoc);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,18 +38,22 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
     });
   }, []);
 
-  const LocationMarker = () => {
-    const map = useMap();
+  const LocationMarker = (props: { map: Map | null }) => {
+    const { map } = props;
+    if (!map) return <></>;
+
     useEffect(() => {
       map.locate({ watch: true }).on('locationfound', function (e) {
-        map.setView(e.latlng, map.getZoom());
-        setLocation(e.latlng);
+        // TODO: 位置情報の変更に追従させる
+        // map.setView(e.latlng, map.getZoom());
+        setCurrentLoc(e.latlng);
       });
     }, [map]);
+
     return (
-      <Marker position={location}>
+      <Marker position={currentLoc}>
         <Circle
-          center={location}
+          center={currentLoc}
           radius={500}
           pathOptions={{ weight: 2, color: '#0072BC' }}
         />
@@ -52,14 +61,31 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
     );
   };
 
+  const CurrentLocationButton = (props: { map: Map | null }) => {
+    const { map } = props;
+    if (!map) return <></>;
+
+    const onClick = useCallback(() => {
+      map.setView(currentLoc, map.getZoom());
+    }, [map]);
+
+    return (
+      <button onClick={onClick} className='current-location-button'>
+        現在地
+      </button>
+    );
+  };
+
   return (
-    <div className='map-display'>
+    <div>
       <MapContainer
-        center={location}
+        center={props.displayLoc}
         zoom={16}
         maxZoom={18}
         minZoom={6}
         zoomControl={false}
+        ref={setMap}
+        className='map-display'
       >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -85,13 +111,22 @@ const Home = (props: { initLoc: LatLngLiteral }) => {
             }
             eventHandlers={{
               click: () => {
-                navigate(`/stamps/${stamp.id}`);
+                navigate(`/stamps/${stamp.id}`, { replace: true });
               },
             }}
           ></Marker>
         ))}
-        <LocationMarker />
+        <LocationMarker map={map} />
       </MapContainer>
+      <CurrentLocationButton map={map} />
+      <button
+        onClick={() => {
+          navigate(`/collection`, { replace: true });
+        }}
+        className='collection-button'
+      >
+        集めたスタンプ
+      </button>
     </div>
   );
 };
