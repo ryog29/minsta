@@ -74,7 +74,7 @@ const StampDetail = (props: {
           navigate(`/`, { replace: true });
         }}
       >
-        戻る
+        閉じる
       </button>
       <h2>スタンプ詳細</h2>
       {stamp && (
