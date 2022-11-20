@@ -1,15 +1,14 @@
 import { collection, doc, getDoc } from 'firebase/firestore';
-import { LatLngLiteral } from 'leaflet';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { idb } from '../idb';
-import { Stamp } from '../types';
+import { MapState, Stamp } from '../types';
 
 const StampDetail = (props: {
-  setDisplayPos: Dispatch<SetStateAction<LatLngLiteral>>;
+  setMapState: Dispatch<SetStateAction<MapState>>;
 }) => {
-  const { setDisplayPos } = props;
+  const { setMapState } = props;
   const navigate = useNavigate();
   const { id } = useParams();
   if (!id) {
@@ -18,6 +17,12 @@ const StampDetail = (props: {
   }
 
   const location = useLocation();
+  useEffect(() => {
+    if (location.state?.from === 'Home') {
+      const { mapState } = location.state;
+      setMapState(mapState);
+    }
+  }, []);
 
   const [stamp, setStamp] = useState<Stamp>();
 
@@ -38,13 +43,6 @@ const StampDetail = (props: {
           stampedCount: docSnap.data().stampedCount,
           isStamped: !!(await idb.stamps.get(id)),
         });
-        // 地図の表示座標を更新する
-        if (location.state.from === 'Home') {
-          setDisplayPos({
-            lat: docSnap.data().coordinates.latitude,
-            lng: docSnap.data().coordinates.longitude,
-          });
-        }
       } else {
         console.warn(`Not found stamp (id:${id})`);
       }
@@ -75,13 +73,15 @@ const StampDetail = (props: {
     <div className='stamp-detail'>
       <button
         onClick={() => {
-          if (location.state.from === 'Home') {
+          if (location.state?.from === 'Home') {
             navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
-          } else if (location.state.from === 'Collection') {
+          } else if (location.state?.from === 'Collection') {
             navigate(`/collection`, {
               state: { from: 'StampDetail' },
               replace: true,
             });
+          } else {
+            navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
           }
         }}
       >

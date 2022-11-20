@@ -1,20 +1,21 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { LatLngLiteral } from 'leaflet';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { idb } from '../idb';
+import { MapState } from '../types';
 
 const Collection = (props: {
-  setDisplayPos: Dispatch<SetStateAction<LatLngLiteral>>;
+  setMapState: Dispatch<SetStateAction<MapState>>;
 }) => {
-  const { setDisplayPos } = props;
+  const { setMapState } = props;
   const navigate = useNavigate();
   const stamps = useLiveQuery(() => idb.stamps.toArray());
 
   const location = useLocation();
   useEffect(() => {
-    if (location.state.from === 'Home') {
-      setDisplayPos(location.state.pos);
+    if (location.state?.from === 'Home') {
+      const { mapState } = location.state;
+      setMapState(mapState);
     }
   }, []);
 

@@ -1,23 +1,16 @@
 import { collection, getDocs } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { Stamp } from '../types';
+import { MapState, Stamp } from '../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import { idb } from '../idb';
+import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../constants';
 
-const ZOOM_VALUES = {
-  init: 16,
-  max: 18,
-  min: 6,
-};
-
-const Home = (props: {
-  displayPos: LatLngLiteral;
-  currentPos: LatLngLiteral;
-}) => {
+const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
+  const { mapState } = props;
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
   const [currentPos, setCurrentPos] = useState<LatLngLiteral>(props.currentPos);
@@ -76,7 +69,7 @@ const Home = (props: {
     if (!map) return <></>;
 
     const onClick = useCallback(() => {
-      map.setView(currentPos, ZOOM_VALUES.init);
+      map.setView(currentPos, DEFAULT_ZOOM);
     }, [map]);
 
     return (
@@ -89,10 +82,10 @@ const Home = (props: {
   return (
     <div>
       <MapContainer
-        center={props.displayPos}
-        zoom={ZOOM_VALUES.init}
-        maxZoom={ZOOM_VALUES.max}
-        minZoom={ZOOM_VALUES.min}
+        center={mapState.center}
+        zoom={mapState.zoom}
+        maxZoom={MAX_ZOOM}
+        minZoom={MIN_ZOOM}
         zoomControl={false}
         ref={setMap}
         className='map-display'
@@ -122,7 +115,15 @@ const Home = (props: {
             eventHandlers={{
               click: () => {
                 navigate(`/stamps/${stamp.id}`, {
-                  state: { from: 'Home' },
+                  state: {
+                    from: 'Home',
+                    mapState: {
+                      // eslint-disable-next-line react/prop-types
+                      center: map?.getCenter(),
+                      // eslint-disable-next-line react/prop-types
+                      zoom: map?.getZoom(),
+                    },
+                  },
                   replace: true,
                 });
               },
@@ -135,7 +136,15 @@ const Home = (props: {
       <button
         onClick={() => {
           navigate(`/collection`, {
-            state: { from: 'Home', pos: currentPos },
+            state: {
+              from: 'Home',
+              mapState: {
+                // eslint-disable-next-line react/prop-types
+                center: map?.getCenter(),
+                // eslint-disable-next-line react/prop-types
+                zoom: map?.getZoom(),
+              },
+            },
             replace: true,
           });
         }}

@@ -1,4 +1,5 @@
 import { GeoPoint, Timestamp } from 'firebase/firestore';
+import { LatLngLiteral } from 'leaflet';
 
 export type Stamp = {
   id: string;
@@ -17,4 +18,9 @@ export type StampIDB = {
   name: string;
   imageUrl: string;
   stampedAt: Date;
+};
+
+export type MapState = {
+  center: LatLngLiteral;
+  zoom: number;
 };
