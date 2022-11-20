@@ -53,7 +53,10 @@ const App = () => {
               path='/stamps/:id'
               element={<StampDetail setDisplayLoc={setDisplayLoc} />}
             />
-            <Route path='/collection' element={<Collection />} />
+            <Route
+              path='/collection'
+              element={<Collection setDisplayLoc={setDisplayLoc} />}
+            />
           </Routes>
         </div>
       )}

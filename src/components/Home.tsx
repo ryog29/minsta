@@ -121,7 +121,10 @@ const Home = (props: {
             }
             eventHandlers={{
               click: () => {
-                navigate(`/stamps/${stamp.id}`, { replace: true });
+                navigate(`/stamps/${stamp.id}`, {
+                  state: { from: 'Home' },
+                  replace: true,
+                });
               },
             }}
           ></Marker>
@@ -131,7 +134,10 @@ const Home = (props: {
       <CurrentLocationButton map={map} />
       <button
         onClick={() => {
-          navigate(`/collection`, { replace: true });
+          navigate(`/collection`, {
+            state: { from: 'Home', loc: currentLoc },
+            replace: true,
+          });
         }}
         className='collection-button'
       >
