@@ -6,7 +6,7 @@ import StampDetail from './components/StampDetail';
 import Collection from './components/Collection';
 
 // 座標の初期値(東京駅)
-const initLoc: LatLngLiteral = {
+const initPos: LatLngLiteral = {
   lat: 35.6810848,
   lng: 139.7650003,
 };
@@ -15,9 +15,9 @@ const App = () => {
   // 位置情報の取得が完了したかどうか
   const [isReady, setIsReady] = useState(false);
   // 表示中の座標
-  const [displayLoc, setDisplayLoc] = useState<LatLngLiteral>(initLoc);
+  const [displayPos, setDisplayPos] = useState<LatLngLiteral>(initPos);
   // 現在地の座標
-  const [currentLoc, setCurrentLoc] = useState<LatLngLiteral>(initLoc);
+  const [currentPos, setCurrentPos] = useState<LatLngLiteral>(initPos);
 
   // 現在地を取得
   useEffect(() => {
@@ -28,8 +28,8 @@ const App = () => {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setCurrentLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setDisplayLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setCurrentPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setDisplayPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setIsReady(true);
       },
       (err) => {
@@ -47,15 +47,15 @@ const App = () => {
           <Routes>
             <Route
               path='/'
-              element={<Home displayLoc={displayLoc} currentLoc={currentLoc} />}
+              element={<Home displayPos={displayPos} currentPos={currentPos} />}
             />
             <Route
               path='/stamps/:id'
-              element={<StampDetail setDisplayLoc={setDisplayLoc} />}
+              element={<StampDetail setDisplayPos={setDisplayPos} />}
             />
             <Route
               path='/collection'
-              element={<Collection setDisplayLoc={setDisplayLoc} />}
+              element={<Collection setDisplayPos={setDisplayPos} />}
             />
           </Routes>
         </div>

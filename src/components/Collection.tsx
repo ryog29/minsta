@@ -5,16 +5,16 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { idb } from '../idb';
 
 const Collection = (props: {
-  setDisplayLoc: Dispatch<SetStateAction<LatLngLiteral>>;
+  setDisplayPos: Dispatch<SetStateAction<LatLngLiteral>>;
 }) => {
-  const { setDisplayLoc } = props;
+  const { setDisplayPos } = props;
   const navigate = useNavigate();
   const stamps = useLiveQuery(() => idb.stamps.toArray());
 
   const location = useLocation();
   useEffect(() => {
     if (location.state.from === 'Home') {
-      setDisplayLoc(location.state.loc);
+      setDisplayPos(location.state.pos);
     }
   }, []);
 

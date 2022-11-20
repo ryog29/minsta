@@ -15,12 +15,12 @@ const ZOOM_VALUES = {
 };
 
 const Home = (props: {
-  displayLoc: LatLngLiteral;
-  currentLoc: LatLngLiteral;
+  displayPos: LatLngLiteral;
+  currentPos: LatLngLiteral;
 }) => {
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
-  const [currentLoc, setCurrentLoc] = useState<LatLngLiteral>(props.currentLoc);
+  const [currentPos, setCurrentPos] = useState<LatLngLiteral>(props.currentPos);
 
   const navigate = useNavigate();
 
@@ -48,7 +48,7 @@ const Home = (props: {
     })();
   }, []);
 
-  const LocationMarker = (props: { map: Map | null }) => {
+  const CurrentPositionMarker = (props: { map: Map | null }) => {
     const { map } = props;
     if (!map) return <></>;
 
@@ -56,14 +56,14 @@ const Home = (props: {
       map.locate({ watch: true }).on('locationfound', function (e) {
         // TODO: 位置情報の変更に追従させる
         // map.setView(e.latlng, map.getZoom());
-        setCurrentLoc(e.latlng);
+        setCurrentPos(e.latlng);
       });
     }, [map]);
 
     return (
-      <Marker position={currentLoc}>
+      <Marker position={currentPos}>
         <Circle
-          center={currentLoc}
+          center={currentPos}
           radius={500}
           pathOptions={{ weight: 2, color: '#0072BC' }}
         />
@@ -71,16 +71,16 @@ const Home = (props: {
     );
   };
 
-  const CurrentLocationButton = (props: { map: Map | null }) => {
+  const CurrentPositionButton = (props: { map: Map | null }) => {
     const { map } = props;
     if (!map) return <></>;
 
     const onClick = useCallback(() => {
-      map.setView(currentLoc, ZOOM_VALUES.init);
+      map.setView(currentPos, ZOOM_VALUES.init);
     }, [map]);
 
     return (
-      <button onClick={onClick} className='current-location-button'>
+      <button onClick={onClick} className='current-position-button'>
         現在地
       </button>
     );
@@ -89,7 +89,7 @@ const Home = (props: {
   return (
     <div>
       <MapContainer
-        center={props.displayLoc}
+        center={props.displayPos}
         zoom={ZOOM_VALUES.init}
         maxZoom={ZOOM_VALUES.max}
         minZoom={ZOOM_VALUES.min}
@@ -129,13 +129,13 @@ const Home = (props: {
             }}
           ></Marker>
         ))}
-        <LocationMarker map={map} />
+        <CurrentPositionMarker map={map} />
       </MapContainer>
-      <CurrentLocationButton map={map} />
+      <CurrentPositionButton map={map} />
       <button
         onClick={() => {
           navigate(`/collection`, {
-            state: { from: 'Home', loc: currentLoc },
+            state: { from: 'Home', pos: currentPos },
             replace: true,
           });
         }}

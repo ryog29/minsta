@@ -60,7 +60,7 @@ body {
   margin-left: 10px;
 }
 
-.current-location-button {
+.current-position-button {
   position: absolute;
   z-index: 1;
   margin-top: 50px;

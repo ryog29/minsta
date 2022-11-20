@@ -7,9 +7,9 @@ import { idb } from '../idb';
 import { Stamp } from '../types';
 
 const StampDetail = (props: {
-  setDisplayLoc: Dispatch<SetStateAction<LatLngLiteral>>;
+  setDisplayPos: Dispatch<SetStateAction<LatLngLiteral>>;
 }) => {
-  const { setDisplayLoc } = props;
+  const { setDisplayPos } = props;
   const navigate = useNavigate();
   const { id } = useParams();
   if (!id) {
@@ -40,7 +40,7 @@ const StampDetail = (props: {
         });
         // 地図の表示座標を更新する
         if (location.state.from === 'Home') {
-          setDisplayLoc({
+          setDisplayPos({
             lat: docSnap.data().coordinates.latitude,
             lng: docSnap.data().coordinates.longitude,
           });
