@@ -9,6 +9,7 @@ import Collection from './components/Collection';
 import Create from './components/Create';
 import Help from './components/Help';
 import Top from './components/Top';
+import NotFound from './components/NotFound';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -71,6 +72,7 @@ const App = () => {
               element={<Create setMapState={setMapState} />}
             />
             <Route path='/help' element={<Help setMapState={setMapState} />} />
+            <Route path='*' element={<NotFound />} />
           </Routes>
         </div>
       )}

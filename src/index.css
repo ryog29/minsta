@@ -48,6 +48,12 @@ body {
   filter: grayscale(100%) opacity(70%);
 }
 
+.not-found {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
 .top {
   position: absolute;
   margin-top: 50px;
