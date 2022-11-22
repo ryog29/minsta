@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import Home from './components/Home';
 import { LatLngLiteral } from 'leaflet';
-import { Route, Routes } from 'react-router-dom';
-import StampDetail from './components/StampDetail';
-import Collection from './components/Collection';
+import { Link, Route, Routes } from 'react-router-dom';
 import { DEFAULT_POS, DEFAULT_ZOOM } from './constants';
 import { MapState } from './types';
+import StampDetail from './components/StampDetail';
+import Collection from './components/Collection';
 import Create from './components/Create';
 import Help from './components/Help';
+import Top from './components/Top';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -48,10 +49,13 @@ const App = () => {
     <>
       {isReady && (
         <div className='App'>
-          <h2 id='title'>minsta ({import.meta.env.MODE})</h2>
+          <Link to={'/'} replace={true}>
+            <h2 id='title'>minsta ({import.meta.env.MODE})</h2>
+          </Link>
           <Routes>
+            <Route path='/' element={<Top />} />
             <Route
-              path='/'
+              path='/home'
               element={<Home currentPos={currentPos} mapState={mapState} />}
             />
             <Route

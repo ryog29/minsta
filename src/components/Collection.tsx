@@ -24,7 +24,7 @@ const Collection = (props: {
     <div className='collection'>
       <button
         onClick={() => {
-          navigate(`/`, { state: { from: 'Collection' }, replace: true });
+          navigate(`/home`, { state: { from: 'Collection' }, replace: true });
         }}
       >
         閉じる

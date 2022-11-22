@@ -23,7 +23,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
       console.log('upload firestore and storage...');
       // TODO: 作成したスタンプの位置を表示位置に設定
       // setMapState();
-      navigate(`/`, { state: { from: 'CreateLocation' }, replace: true });
+      navigate(`/home`, { state: { from: 'CreateLocation' }, replace: true });
     }, []);
 
     return <button onClick={onClick}>作成する</button>;
@@ -33,7 +33,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     <div className='create'>
       <button
         onClick={() => {
-          navigate(`/`, { state: { from: 'Create' }, replace: true });
+          navigate(`/home`, { state: { from: 'Create' }, replace: true });
         }}
       >
         閉じる

@@ -74,7 +74,10 @@ const StampDetail = (props: {
       <button
         onClick={() => {
           if (location.state?.from === 'Home') {
-            navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
+            navigate(`/home`, {
+              state: { from: 'StampDetail' },
+              replace: true,
+            });
           } else if (location.state?.from === 'Collection') {
             navigate(`/collection`, {
               state: { from: 'StampDetail' },

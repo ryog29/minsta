@@ -18,7 +18,7 @@ const Help = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     <div className='help'>
       <button
         onClick={() => {
-          navigate(`/`, { state: { from: 'Help' }, replace: true });
+          navigate(`/home`, { state: { from: 'Help' }, replace: true });
         }}
       >
         閉じる

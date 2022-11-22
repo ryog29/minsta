@@ -48,6 +48,12 @@ body {
   filter: grayscale(100%) opacity(70%);
 }
 
+.top {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
 .stamp-detail {
   position: absolute;
   margin-top: 50px;
