@@ -7,6 +7,7 @@ import Collection from './components/Collection';
 import { DEFAULT_POS, DEFAULT_ZOOM } from './constants';
 import { MapState } from './types';
 import Create from './components/Create';
+import Help from './components/Help';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -65,6 +66,7 @@ const App = () => {
               path='/create'
               element={<Create setMapState={setMapState} />}
             />
+            <Route path='/help' element={<Help setMapState={setMapState} />} />
           </Routes>
         </div>
       )}

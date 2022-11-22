@@ -85,3 +85,15 @@ body {
   margin-top: 110px;
   margin-left: 10px;
 }
+
+.help {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
+.help-button {
+  position: absolute;
+  margin-top: 140px;
+  margin-left: 10px;
+}

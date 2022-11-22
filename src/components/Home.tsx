@@ -166,6 +166,23 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
       >
         スタンプを作成
       </button>
+      <button
+        onClick={() => {
+          navigate(`/help`, {
+            state: {
+              from: 'Home',
+              mapState: {
+                center: map?.getCenter(),
+                zoom: map?.getZoom(),
+              },
+            },
+            replace: true,
+          });
+        }}
+        className='help-button'
+      >
+        ヘルプ
+      </button>
     </div>
   );
 };
