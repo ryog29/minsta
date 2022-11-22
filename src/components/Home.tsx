@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { collection, getDocs } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { db } from '../firebase';
@@ -118,9 +119,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
                   state: {
                     from: 'Home',
                     mapState: {
-                      // eslint-disable-next-line react/prop-types
                       center: map?.getCenter(),
-                      // eslint-disable-next-line react/prop-types
                       zoom: map?.getZoom(),
                     },
                   },
@@ -139,9 +138,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             state: {
               from: 'Home',
               mapState: {
-                // eslint-disable-next-line react/prop-types
                 center: map?.getCenter(),
-                // eslint-disable-next-line react/prop-types
                 zoom: map?.getZoom(),
               },
             },
@@ -151,6 +148,23 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
         className='collection-button'
       >
         集めたスタンプ
+      </button>
+      <button
+        onClick={() => {
+          navigate(`/create`, {
+            state: {
+              from: 'Home',
+              mapState: {
+                center: map?.getCenter(),
+                zoom: map?.getZoom(),
+              },
+            },
+            replace: true,
+          });
+        }}
+        className='create-stamp-button'
+      >
+        スタンプを作成
       </button>
     </div>
   );

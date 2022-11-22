@@ -6,6 +6,7 @@ import StampDetail from './components/StampDetail';
 import Collection from './components/Collection';
 import { DEFAULT_POS, DEFAULT_ZOOM } from './constants';
 import { MapState } from './types';
+import Create from './components/Create';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -59,6 +60,10 @@ const App = () => {
             <Route
               path='/collection'
               element={<Collection setMapState={setMapState} />}
+            />
+            <Route
+              path='/create'
+              element={<Create setMapState={setMapState} />}
             />
           </Routes>
         </div>

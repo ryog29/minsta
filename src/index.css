@@ -73,3 +73,15 @@ body {
   margin-top: 80px;
   margin-left: 10px; 
 }
+
+.create {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
+.create-stamp-button {
+  position: absolute;
+  margin-top: 110px;
+  margin-left: 10px;
+}
