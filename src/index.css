@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -13,99 +17,7 @@
 
 body {
   margin: 0;
-  padding: 0;  
+  padding: 0;
   width: 100%;
   height: 100vh;
-}
-
-#title {
-  position: absolute;
-  z-index: 1;
-  color: black;
-  margin-left: 10px;
-}
-
-.leaflet-container {
-  width: 100%;
-  height: 100vh;
-}
-
-.map-display {  
-  width: 100%;
-  height: 100vh;
-  position: absolute;
-  z-index: 0;
-}
-
-.stamp-image {
-  width: 200px;
-  height: 200px;
-}
-
-/* .stamped-icon {} */
-
-.not-stamped-icon { 
-  filter: grayscale(100%) opacity(70%);
-}
-
-.not-found {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.top {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.stamp-detail {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.collection {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.current-position-button {
-  position: absolute;
-  z-index: 1;
-  margin-top: 50px;
-  margin-left: 10px; 
-}
-
-.collection-button {
-  position: absolute;
-  z-index: 1;
-  margin-top: 80px;
-  margin-left: 10px; 
-}
-
-.create {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.create-stamp-button {
-  position: absolute;
-  margin-top: 110px;
-  margin-left: 10px;
-}
-
-.help {
-  position: absolute;
-  margin-top: 50px;
-  margin-left: 10px;
-}
-
-.help-button {
-  position: absolute;
-  margin-top: 140px;
-  margin-left: 10px;
 }

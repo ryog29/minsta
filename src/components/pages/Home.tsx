@@ -1,14 +1,15 @@
 /* eslint-disable react/prop-types */
 import { collection, getDocs } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
-import { db } from '../firebase';
-import { MapState, Stamp } from '../types';
+import { db } from '../../firebase';
+import { MapState, Stamp } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
-import { idb } from '../idb';
-import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../constants';
+import { idb } from '../../idb';
+import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../../constants';
+import Header from '../templates/Header';
 
 const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
   const { mapState } = props;
@@ -74,7 +75,10 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
     }, [map]);
 
     return (
-      <button onClick={onClick} className='current-position-button'>
+      <button
+        onClick={onClick}
+        className='absolute ml-2 mt-12 bg-gray-400 text-white rounded px-2 py-2 font-bold'
+      >
         現在地
       </button>
     );
@@ -82,6 +86,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
 
   return (
     <div>
+      <Header className={'absolute z-10 ml-2 mt-2'} />
       <MapContainer
         center={mapState.center}
         zoom={mapState.zoom}
@@ -89,7 +94,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
         minZoom={MIN_ZOOM}
         zoomControl={false}
         ref={setMap}
-        className='map-display'
+        className={'absolute z-0 w-full h-screen'}
       >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -108,9 +113,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
               new Icon({
                 iconUrl: stamp.imageUrl,
                 iconSize: [70, 70],
-                className: stamp.isStamped
-                  ? 'stamped-icon'
-                  : 'not-stamped-icon',
+                className: stamp.isStamped ? '' : 'filter grayscale opacity-70',
               })
             }
             eventHandlers={{
@@ -145,7 +148,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='collection-button'
+        className='absolute ml-2 mt-24 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         集めたスタンプ
       </button>
@@ -162,7 +165,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='create-stamp-button'
+        className='absolute ml-2 mt-36 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         スタンプを作成
       </button>
@@ -179,7 +182,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='help-button'
+        className='absolute ml-2 mt-48 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         ヘルプ
       </button>

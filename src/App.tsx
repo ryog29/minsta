@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
-import Home from './components/Home';
+import Home from './components/pages/Home';
 import { LatLngLiteral } from 'leaflet';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { DEFAULT_POS, DEFAULT_ZOOM } from './constants';
 import { MapState } from './types';
-import StampDetail from './components/StampDetail';
-import Collection from './components/Collection';
-import Create from './components/Create';
-import Help from './components/Help';
-import Top from './components/Top';
-import NotFound from './components/NotFound';
+import StampDetail from './components/pages/StampDetail';
+import Collection from './components/pages/Collection';
+import Create from './components/pages/Create';
+import Help from './components/pages/Help';
+import Top from './components/pages/Top';
+import NotFound from './components/pages/NotFound';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -50,9 +50,6 @@ const App = () => {
     <>
       {isReady && (
         <div className='App'>
-          <Link to={'/'} replace={true}>
-            <h2 id='title'>minsta ({import.meta.env.MODE})</h2>
-          </Link>
           <Routes>
             <Route path='/' element={<Top />} />
             <Route

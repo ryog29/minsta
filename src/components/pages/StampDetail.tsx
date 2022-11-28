@@ -1,9 +1,10 @@
 import { collection, doc, getDoc } from 'firebase/firestore';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { db } from '../firebase';
-import { idb } from '../idb';
-import { MapState, Stamp } from '../types';
+import { db } from '../../firebase';
+import { idb } from '../../idb';
+import { MapState, Stamp } from '../../types';
+import Header from '../templates/Header';
 
 const StampDetail = (props: {
   setMapState: Dispatch<SetStateAction<MapState>>;
@@ -70,50 +71,56 @@ const StampDetail = (props: {
   }
 
   return (
-    <div className='stamp-detail'>
-      <button
-        onClick={() => {
-          if (location.state?.from === 'Home') {
-            navigate(`/home`, {
-              state: { from: 'StampDetail' },
-              replace: true,
-            });
-          } else if (location.state?.from === 'Collection') {
-            navigate(`/collection`, {
-              state: { from: 'StampDetail' },
-              replace: true,
-            });
-          } else {
-            navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
-          }
-        }}
-      >
-        閉じる
-      </button>
-      <h2>スタンプ詳細</h2>
-      {stamp && (
-        <div>
-          <ul>
-            <li>id: {stamp.id}</li>
-            <li>name: {stamp.name}</li>
-            <li>address: {stamp.address}</li>
-            <li>createdBy: {stamp.createdBy}</li>
-            <li>createdAt: {stamp.createdAt.toDate().toString()}</li>
-            <li>stampedCount: {stamp.stampedCount}</li>
-            <li>isStamped: {String(stamp.isStamped)}</li>
-          </ul>
-          <img
-            className={`${
-              stamp.isStamped ? 'stamped-icon' : 'not-stamped-icon'
-            } stamp-image`}
-            src={stamp.imageUrl}
-          ></img>
-        </div>
-      )}
-      <button onClick={getStamp} disabled={stamp?.isStamped}>
-        スタンプを押す
-      </button>
-    </div>
+    <>
+      <Header className='ml-2 mt-2' />
+      <div className='ml-2'>
+        <button
+          onClick={() => {
+            if (location.state?.from === 'Home') {
+              navigate(`/home`, {
+                state: { from: 'StampDetail' },
+                replace: true,
+              });
+            } else if (location.state?.from === 'Collection') {
+              navigate(`/collection`, {
+                state: { from: 'StampDetail' },
+                replace: true,
+              });
+            } else {
+              navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
+            }
+          }}
+          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
+        >
+          閉じる
+        </button>
+        <h2 className='mt-2 text-2xl font-bold'>スタンプ詳細</h2>
+        {stamp && (
+          <div>
+            <ul>
+              <li>id: {stamp.id}</li>
+              <li>name: {stamp.name}</li>
+              <li>address: {stamp.address}</li>
+              <li>createdBy: {stamp.createdBy}</li>
+              <li>createdAt: {stamp.createdAt.toDate().toString()}</li>
+              <li>stampedCount: {stamp.stampedCount}</li>
+              <li>isStamped: {String(stamp.isStamped)}</li>
+            </ul>
+            <img
+              className={stamp.isStamped ? '' : 'filter grayscale opacity-70'}
+              src={stamp.imageUrl}
+            ></img>
+          </div>
+        )}
+        <button
+          onClick={getStamp}
+          disabled={stamp?.isStamped}
+          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold disabled:opacity-50'
+        >
+          スタンプを押す
+        </button>
+      </div>
+    </>
   );
 };
 
