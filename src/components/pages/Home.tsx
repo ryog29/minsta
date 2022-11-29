@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
 import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../../constants';
 import Header from '../templates/Header';
+import MenuButton from '../parts/MenuButton';
 
 const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
   const { mapState } = props;
@@ -75,12 +76,9 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
     }, [map]);
 
     return (
-      <button
-        onClick={onClick}
-        className='absolute ml-2 mt-12 bg-gray-400 text-white rounded px-2 py-2 font-bold'
-      >
+      <MenuButton className='absolute right-2 bottom-8' onClick={onClick}>
         現在地
-      </button>
+      </MenuButton>
     );
   };
 
@@ -135,7 +133,8 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
         <CurrentPositionMarker map={map} />
       </MapContainer>
       <CurrentPositionButton map={map} />
-      <button
+      <MenuButton
+        className='absolute right-2 bottom-20'
         onClick={() => {
           navigate(`/collection`, {
             state: {
@@ -148,11 +147,11 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='absolute ml-2 mt-24 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         集めたスタンプ
-      </button>
-      <button
+      </MenuButton>
+      <MenuButton
+        className='absolute right-2 bottom-32'
         onClick={() => {
           navigate(`/create`, {
             state: {
@@ -165,11 +164,11 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='absolute ml-2 mt-36 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         スタンプを作成
-      </button>
-      <button
+      </MenuButton>
+      <MenuButton
+        className='absolute right-2 bottom-44'
         onClick={() => {
           navigate(`/help`, {
             state: {
@@ -182,10 +181,9 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
             replace: true,
           });
         }}
-        className='absolute ml-2 mt-48 bg-gray-400 text-white rounded px-2 py-2 font-bold'
       >
         ヘルプ
-      </button>
+      </MenuButton>
     </div>
   );
 };
