@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
 import { MapState } from '../../types';
+import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const Collection = (props: {
@@ -25,14 +26,14 @@ const Collection = (props: {
     <>
       <Header className='ml-2 mt-2' />
       <div className='ml-2'>
-        <button
+        <NavigationButton
+          className='my-1'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Collection' }, replace: true });
           }}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
         >
-          閉じる
-        </button>
+          戻る
+        </NavigationButton>
         <h2 className='mt-2 text-2xl font-bold'>
           集めたスタンプ数: {stamps?.length}
         </h2>

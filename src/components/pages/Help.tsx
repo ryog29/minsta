@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MapState } from '../../types';
+import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const Help = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
@@ -19,14 +20,14 @@ const Help = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     <>
       <Header className='ml-2 mt-2' />
       <div className='ml-2'>
-        <button
+        <NavigationButton
+          className='my-1'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Help' }, replace: true });
           }}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
         >
-          閉じる
-        </button>
+          戻る
+        </NavigationButton>
         <h2>ヘルプ</h2>
       </div>
     </>

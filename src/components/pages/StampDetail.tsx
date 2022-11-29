@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../firebase';
 import { idb } from '../../idb';
 import { MapState, Stamp } from '../../types';
+import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const StampDetail = (props: {
@@ -74,7 +75,8 @@ const StampDetail = (props: {
     <>
       <Header className='ml-2 mt-2' />
       <div className='ml-2'>
-        <button
+        <NavigationButton
+          className='my-1'
           onClick={() => {
             if (location.state?.from === 'Home') {
               navigate(`/home`, {
@@ -90,10 +92,9 @@ const StampDetail = (props: {
               navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
             }
           }}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
         >
-          閉じる
-        </button>
+          戻る
+        </NavigationButton>
         <h2 className='mt-2 text-2xl font-bold'>スタンプ詳細</h2>
         {stamp && (
           <div>
@@ -109,16 +110,10 @@ const StampDetail = (props: {
             <img
               className={stamp.isStamped ? '' : 'filter grayscale opacity-70'}
               src={stamp.imageUrl}
+              onClick={getStamp}
             ></img>
           </div>
         )}
-        <button
-          onClick={getStamp}
-          disabled={stamp?.isStamped}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold disabled:opacity-50'
-        >
-          スタンプを押す
-        </button>
       </div>
     </>
   );

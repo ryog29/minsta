@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useModal from '../../hooks/useModal';
 import { MapState } from '../../types';
+import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
@@ -28,12 +29,9 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     }, []);
 
     return (
-      <button
-        onClick={onClick}
-        className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
-      >
+      <NavigationButton className='my-2' onClick={onClick}>
         作成する
-      </button>
+      </NavigationButton>
     );
   };
 
@@ -41,21 +39,18 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     <>
       <Header className='ml-2 mt-2' />
       <div className='ml-2'>
-        <button
+        <NavigationButton
+          className='my-1'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Create' }, replace: true });
           }}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
         >
-          閉じる
-        </button>
+          戻る
+        </NavigationButton>
         <h2>スタンプを作成</h2>
-        <button
-          onClick={openModal}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
-        >
+        <NavigationButton className='my-1' onClick={openModal}>
           次へ
-        </button>
+        </NavigationButton>
         <Modal>
           <div
             style={{
@@ -66,12 +61,9 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
               borderRadius: '15px',
             }}
           >
-            <button
-              onClick={closeModal}
-              className='my-2 mr-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
-            >
-              閉じる
-            </button>
+            <NavigationButton className='my-1 mr-2' onClick={closeModal}>
+              戻る
+            </NavigationButton>
             <CreateStampButton />
           </div>
         </Modal>

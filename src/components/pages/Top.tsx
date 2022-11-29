@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const Top = () => {
@@ -7,15 +8,15 @@ const Top = () => {
     <>
       <Header className='ml-2 mt-2' />
       <div className='ml-2'>
-        <h2>トップ</h2>
-        <button
+        <h2 className='mt-2 text-2xl font-bold'>トップ</h2>
+        <NavigationButton
+          className='my-1'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Top' }, replace: true });
           }}
-          className='my-2 bg-gray-400 text-white rounded px-2 py-2 font-bold'
         >
           ホームへ
-        </button>
+        </NavigationButton>
       </div>
     </>
   );
