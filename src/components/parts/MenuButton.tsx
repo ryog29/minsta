@@ -9,7 +9,7 @@ const MenuButton = (props: {
     <div className={className}>
       <button
         onClick={onClick}
-        className='bg-gray-400 text-white rounded px-2 py-2 font-bold'
+        className='bg-white text-white border-2 border-gray-400 rounded px-2 py-2'
       >
         {children}
       </button>

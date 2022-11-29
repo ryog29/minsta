@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { collection, getDocs } from 'firebase/firestore';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { MapState, Stamp } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
 import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../../constants';
 import Header from '../templates/Header';
-import MenuButton from '../parts/MenuButton';
+import Menu from '../templates/Menu';
 
 const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
   const { mapState } = props;
@@ -67,21 +67,6 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
     );
   };
 
-  const CurrentPositionButton = (props: { map: Map | null }) => {
-    const { map } = props;
-    if (!map) return <></>;
-
-    const onClick = useCallback(() => {
-      map.setView(currentPos, DEFAULT_ZOOM);
-    }, [map]);
-
-    return (
-      <MenuButton className='absolute right-2 bottom-8' onClick={onClick}>
-        現在地
-      </MenuButton>
-    );
-  };
-
   return (
     <div>
       <Header className={'absolute z-10 ml-2 mt-2'} />
@@ -132,58 +117,66 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
         ))}
         <CurrentPositionMarker map={map} />
       </MapContainer>
-      <CurrentPositionButton map={map} />
-      <MenuButton
-        className='absolute right-2 bottom-20'
-        onClick={() => {
-          navigate(`/collection`, {
-            state: {
-              from: 'Home',
-              mapState: {
-                center: map?.getCenter(),
-                zoom: map?.getZoom(),
-              },
+      <Menu
+        buttons={[
+          {
+            name: 'ヘルプ',
+            icon: '❓',
+            onClick: () => {
+              navigate(`/help`, {
+                state: {
+                  from: 'Home',
+                  mapState: {
+                    center: map?.getCenter(),
+                    zoom: map?.getZoom(),
+                  },
+                },
+                replace: true,
+              });
             },
-            replace: true,
-          });
-        }}
-      >
-        集めたスタンプ
-      </MenuButton>
-      <MenuButton
-        className='absolute right-2 bottom-32'
-        onClick={() => {
-          navigate(`/create`, {
-            state: {
-              from: 'Home',
-              mapState: {
-                center: map?.getCenter(),
-                zoom: map?.getZoom(),
-              },
+          },
+          {
+            name: 'スタンプを作成',
+            icon: '➕',
+            onClick: () => {
+              navigate(`/create`, {
+                state: {
+                  from: 'Home',
+                  mapState: {
+                    center: map?.getCenter(),
+                    zoom: map?.getZoom(),
+                  },
+                },
+                replace: true,
+              });
             },
-            replace: true,
-          });
-        }}
-      >
-        スタンプを作成
-      </MenuButton>
-      <MenuButton
-        className='absolute right-2 bottom-44'
-        onClick={() => {
-          navigate(`/help`, {
-            state: {
-              from: 'Home',
-              mapState: {
-                center: map?.getCenter(),
-                zoom: map?.getZoom(),
-              },
+          },
+          {
+            name: '集めたスタンプ',
+            icon: '📖',
+            onClick: () => {
+              navigate(`/collection`, {
+                state: {
+                  from: 'Home',
+                  mapState: {
+                    center: map?.getCenter(),
+                    zoom: map?.getZoom(),
+                  },
+                },
+                replace: true,
+              });
             },
-            replace: true,
-          });
-        }}
-      >
-        ヘルプ
-      </MenuButton>
+          },
+          {
+            name: '現在地',
+            icon: '📍',
+            onClick: () => {
+              map?.setView(currentPos, DEFAULT_ZOOM);
+            },
+          },
+        ]}
+        className='absolute right-2 bottom-4'
+      />
     </div>
   );
 };
