@@ -37,7 +37,9 @@ const useModal = () => {
             opacity: '0.5',
           }}
         ></div>
-        <div style={{ position: 'relative' }}>{props.children}</div>
+        <div className='absolute bg-white w-3/4 h-3/4'>
+          <div>{props.children}</div>
+        </div>
       </div>
     );
   };

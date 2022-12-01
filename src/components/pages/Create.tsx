@@ -1,8 +1,15 @@
-import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useModal from '../../hooks/useModal';
 import { MapState } from '../../types';
 import NavigationButton from '../parts/NavigationButton';
+import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 
 const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
@@ -35,6 +42,24 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     );
   };
 
+  const [imgUrl, setImgUrl] = useState<string>('');
+
+  const onFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          if (reader.result) {
+            setImgUrl(reader.result.toString());
+            openModal();
+          }
+        });
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    },
+    []
+  );
+
   return (
     <>
       <Header className='ml-2 mt-2' />
@@ -48,23 +73,22 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           戻る
         </NavigationButton>
         <h2>スタンプを作成</h2>
-        <NavigationButton className='my-1' onClick={openModal}>
-          次へ
-        </NavigationButton>
+        <input
+          type='file'
+          capture='environment'
+          accept='image/*'
+          onChange={onFileChange}
+        ></input>
+        <CreateStampButton />
         <Modal>
-          <div
-            style={{
-              backgroundColor: 'white',
-              width: '300px',
-              height: '600px',
-              padding: '1em',
-              borderRadius: '15px',
-            }}
-          >
-            <NavigationButton className='my-1 mr-2' onClick={closeModal}>
-              戻る
-            </NavigationButton>
-            <CreateStampButton />
+          <div>
+            <CropperModal imgUrl={imgUrl} />
+            <button
+              className='absolute inset-x-0 bottom-0 bg-gray-400 text-white px-2 py-2 font-bold'
+              onClick={closeModal}
+            >
+              決定
+            </button>
           </div>
         </Modal>
       </div>
