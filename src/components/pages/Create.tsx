@@ -43,6 +43,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   };
 
   const [imgUrl, setImgUrl] = useState<string>('');
+  const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
 
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,16 +82,13 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
         ></input>
         <CreateStampButton />
         <Modal>
-          <div>
-            <CropperModal imgUrl={imgUrl} />
-            <button
-              className='absolute inset-x-0 bottom-0 bg-gray-400 text-white px-2 py-2 font-bold'
-              onClick={closeModal}
-            >
-              決定
-            </button>
-          </div>
+          <CropperModal
+            imgUrl={imgUrl}
+            setCroppedImgUrl={setCroppedImgUrl}
+            closeModal={closeModal}
+          />
         </Modal>
+        <img src={croppedImgUrl}></img>
       </div>
     </>
   );
