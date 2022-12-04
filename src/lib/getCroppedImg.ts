@@ -1,19 +1,7 @@
 import { Area } from 'react-easy-crop';
+import { canvasToBlob } from './canvasToBlob';
+import { createImage } from './createImage';
 
-/**
- * urlをもとにimage要素を作成
- */
-export const createImage = (url: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', (error) => reject(error));
-    image.src = url;
-  });
-
-/**
- * 画像トリミングを行い新たな画像urlを作成
- */
 export default async function getCroppedImg(
   imageSrc: string,
   pixelCrop: Area
@@ -49,9 +37,6 @@ export default async function getCroppedImg(
   ctx.putImageData(data, 0, 0);
 
   // canvasを画像に変換
-  return new Promise((resolve) => {
-    canvas.toBlob((file) => {
-      if (file !== null) resolve(URL.createObjectURL(file));
-    }, 'image/jpeg');
-  });
+  const blob = await canvasToBlob(canvas);
+  return URL.createObjectURL(blob);
 }

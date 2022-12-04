@@ -19,12 +19,16 @@ import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 import { useForm } from 'react-hook-form';
 import {
-  addDoc,
   collection,
+  doc,
   GeoPoint,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db, storage } from '../../firebase';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { canvasToBlob } from '../../lib/canvasToBlob';
+import { createImage } from '../../lib/createImage';
 
 const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   const { setMapState } = props;
@@ -46,27 +50,61 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     formState: { errors },
   } = useForm({ mode: 'onChange', criteriaMode: 'all' });
 
+  // TODO: 画像のバリデーションをする
+  // TODO: pngで保存する
   const onSubmit = handleSubmit(async (data) => {
     const { stampName, creatorName } = data;
     const { lat, lng } = location.state.mapState.center;
-    // TODO: CloudStorageに画像をアップロード
-    try {
-      const stampsCollectionRef = collection(db, 'stamps');
-      const docRef = await addDoc(stampsCollectionRef, {
-        name: stampName,
-        coordinates: new GeoPoint(lat, lng),
-        address: 'テスト県テスト市テスト1-1-1',
-        imageUrl:
-          'https://firebasestorage.googleapis.com/v0/b/minsta-dev.appspot.com/o/stamp-images%2Fmock.png?alt=media&token=909b801d-cee2-412b-990d-2caf3436f97a',
-        createdBy: creatorName,
-        createdAt: serverTimestamp(),
-        stampedCount: 0,
-      });
-      console.log(docRef);
-    } catch (error) {
-      console.log(error);
-    }
-    navigate(`/home`, { state: { from: 'CreateLocation' }, replace: true });
+    const stampsCollectionRef = doc(collection(db, 'stamps'));
+    const fileName = `${stampsCollectionRef.id}.jpeg`;
+    const storageRef = ref(storage, `stamp-images/${fileName}`);
+    const dstCanvas: HTMLCanvasElement = document.getElementById(
+      'dstCanvas'
+    ) as HTMLCanvasElement;
+    const blob = await canvasToBlob(dstCanvas);
+    const uploadTask = uploadBytesResumable(storageRef, blob, {
+      contentType: 'image/jpeg',
+    });
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+        console.warn(error);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          await setDoc(stampsCollectionRef, {
+            name: stampName,
+            coordinates: new GeoPoint(lat, lng),
+            address: 'テスト県テスト市テスト1-1-1',
+            imageUrl: downloadUrl,
+            createdBy: creatorName,
+            createdAt: serverTimestamp(),
+            stampedCount: 0,
+          });
+          navigate(`/home`, {
+            state: { from: 'CreateLocation' },
+            replace: true,
+          });
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+    );
   });
 
   const [imgUrl, setImgUrl] = useState<string>('');
@@ -76,7 +114,6 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
 
   const convertImg = (threshold: number) => {
     if (srcCtx && dstCtx) {
-      console.log(threshold);
       const src = srcCtx.getImageData(0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
       const dst = srcCtx.createImageData(STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
 
@@ -111,15 +148,14 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   }, []);
 
   useEffect(() => {
-    if (srcCtx && dstCtx) {
-      const img = new Image();
-      img.src = croppedImgUrl;
-      img.onload = () => {
+    (async () => {
+      if (srcCtx && dstCtx && croppedImgUrl) {
+        const img = await createImage(croppedImgUrl);
         srcCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
         dstCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
         convertImg(DEFAULT_THRESHOLD);
-      };
-    }
+      }
+    })();
   }, [srcCtx, dstCtx, croppedImgUrl]);
 
   const onFileChange = useCallback(
