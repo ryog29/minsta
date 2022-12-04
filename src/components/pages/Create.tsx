@@ -18,6 +18,13 @@ import NavigationButton from '../parts/NavigationButton';
 import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 import { useForm } from 'react-hook-form';
+import {
+  addDoc,
+  collection,
+  GeoPoint,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   const { setMapState } = props;
@@ -39,26 +46,28 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     formState: { errors },
   } = useForm({ mode: 'onChange', criteriaMode: 'all' });
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async (data) => {
     const { stampName, creatorName } = data;
-    console.log(stampName, creatorName);
+    const { lat, lng } = location.state.mapState.center;
+    // TODO: CloudStorageに画像をアップロード
+    try {
+      const stampsCollectionRef = collection(db, 'stamps');
+      const docRef = await addDoc(stampsCollectionRef, {
+        name: stampName,
+        coordinates: new GeoPoint(lat, lng),
+        address: 'テスト県テスト市テスト1-1-1',
+        imageUrl:
+          'https://firebasestorage.googleapis.com/v0/b/minsta-dev.appspot.com/o/stamp-images%2Fmock.png?alt=media&token=909b801d-cee2-412b-990d-2caf3436f97a',
+        createdBy: creatorName,
+        createdAt: serverTimestamp(),
+        stampedCount: 0,
+      });
+      console.log(docRef);
+    } catch (error) {
+      console.log(error);
+    }
+    navigate(`/home`, { state: { from: 'CreateLocation' }, replace: true });
   });
-
-  const CreateStampButton = () => {
-    const onClick = useCallback(async () => {
-      // TODO: firestore と storage に書き込む(完了を待つ)
-      console.log('upload firestore and storage...');
-      // TODO: 作成したスタンプの位置を表示位置に設定
-      // setMapState();
-      navigate(`/home`, { state: { from: 'CreateLocation' }, replace: true });
-    }, []);
-
-    return (
-      <NavigationButton className='my-2' onClick={onClick}>
-        作成する
-      </NavigationButton>
-    );
-  };
 
   const [imgUrl, setImgUrl] = useState<string>('');
   const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
@@ -212,10 +221,9 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
             type='submit'
             className='bg-gray-400 text-white rounded px-2 py-2 font-bold mt-2'
           >
-            ログイン
+            作成する
           </button>
         </form>
-        <CreateStampButton />
       </div>
     </>
   );
