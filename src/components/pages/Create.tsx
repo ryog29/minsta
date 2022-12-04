@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { DEFAULT_THRESHOLD, STAMP_IMAGE_SIZE } from '../../constants';
 import useModal from '../../hooks/useModal';
 import { MapState } from '../../types';
 import NavigationButton from '../parts/NavigationButton';
@@ -44,6 +45,56 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
 
   const [imgUrl, setImgUrl] = useState<string>('');
   const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
+  const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
+  const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
+
+  const convertImg = (threshold: number) => {
+    if (srcCtx && dstCtx) {
+      console.log(threshold);
+      const src = srcCtx.getImageData(0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+      const dst = srcCtx.createImageData(STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+
+      for (let i = 0; i < src.data.length; i = i + 4) {
+        const y = ~~(
+          0.299 * src.data[i] +
+          0.587 * src.data[i + 1] +
+          0.114 * src.data[i + 2]
+        );
+        const ret = y > threshold ? 255 : 0;
+        dst.data[i] = 255;
+        dst.data[i + 1] = dst.data[i + 2] = ret;
+        dst.data[i + 3] = src.data[i + 3];
+      }
+
+      dstCtx.putImageData(dst, 0, 0);
+    }
+  };
+
+  useEffect(() => {
+    const srcCanvas: HTMLCanvasElement = document.createElement('canvas');
+    srcCanvas.width = STAMP_IMAGE_SIZE;
+    srcCanvas.height = STAMP_IMAGE_SIZE;
+    const srcCtx = srcCanvas.getContext('2d') as CanvasRenderingContext2D;
+    setSrcCtx(srcCtx);
+
+    const dstCanvas: HTMLCanvasElement = document.getElementById(
+      'dstCanvas'
+    ) as HTMLCanvasElement;
+    const dstCtx = dstCanvas.getContext('2d') as CanvasRenderingContext2D;
+    setDstCtx(dstCtx);
+  }, []);
+
+  useEffect(() => {
+    if (srcCtx && dstCtx) {
+      const img = new Image();
+      img.src = croppedImgUrl;
+      img.onload = () => {
+        srcCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+        dstCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+        convertImg(DEFAULT_THRESHOLD);
+      };
+    }
+  }, [srcCtx, dstCtx, croppedImgUrl]);
 
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +131,6 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           accept='image/*'
           onChange={onFileChange}
         ></input>
-        <CreateStampButton />
         <Modal>
           <CropperModal
             imgUrl={imgUrl}
@@ -88,7 +138,23 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
             closeModal={closeModal}
           />
         </Modal>
-        <img src={croppedImgUrl}></img>
+        <canvas
+          id='dstCanvas'
+          width={STAMP_IMAGE_SIZE}
+          height={STAMP_IMAGE_SIZE}
+          className='my-10 mx-auto'
+        ></canvas>
+        <input
+          type='range'
+          min='0'
+          max='254'
+          step='1'
+          defaultValue={DEFAULT_THRESHOLD}
+          onChange={(e) => {
+            convertImg(Number(e.target.value));
+          }}
+        ></input>
+        <CreateStampButton />
       </div>
     </>
   );
