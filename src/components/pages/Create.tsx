@@ -6,12 +6,18 @@ import {
   useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DEFAULT_THRESHOLD, STAMP_IMAGE_SIZE } from '../../constants';
+import {
+  DEFAULT_THRESHOLD,
+  MAX_CREATOR_NAME_LENGTH,
+  MAX_STAMP_NAME_LENGTH,
+  STAMP_IMAGE_SIZE,
+} from '../../constants';
 import useModal from '../../hooks/useModal';
 import { MapState } from '../../types';
 import NavigationButton from '../parts/NavigationButton';
 import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
+import { useForm } from 'react-hook-form';
 
 const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   const { setMapState } = props;
@@ -26,6 +32,17 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
       setMapState(mapState);
     }
   }, []);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: 'onChange', criteriaMode: 'all' });
+
+  const onSubmit = handleSubmit((data) => {
+    const { stampName, creatorName } = data;
+    console.log(stampName, creatorName);
+  });
 
   const CreateStampButton = () => {
     const onClick = useCallback(async () => {
@@ -154,6 +171,50 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
             convertImg(Number(e.target.value));
           }}
         ></input>
+        <form onSubmit={onSubmit}>
+          <div>
+            <label>スタンプ名</label>
+            <input
+              {...register('stampName', {
+                required: true,
+                maxLength: MAX_STAMP_NAME_LENGTH,
+              })}
+              className='block px-3 py-1.5 m-0 border border-solid border-gray-300 rounded'
+            />
+            {errors.stampName?.type === 'required' && (
+              <div className='text-red-500'>入力必須の項目です。</div>
+            )}
+            {errors.stampName?.type === 'maxLength' && (
+              <div className='text-red-500'>
+                {MAX_STAMP_NAME_LENGTH}文字以内で入力してください。
+              </div>
+            )}
+          </div>
+          <div>
+            <label>作者</label>
+            <input
+              {...register('creatorName', {
+                required: true,
+                maxLength: MAX_CREATOR_NAME_LENGTH,
+              })}
+              className='block px-3 py-1.5 m-0 border border-solid border-gray-300 rounded'
+            />
+            {errors.creatorName?.type === 'required' && (
+              <div className='text-red-500'>入力必須の項目です。</div>
+            )}
+            {errors.creatorName?.type === 'maxLength' && (
+              <div className='text-red-500'>
+                {MAX_CREATOR_NAME_LENGTH}文字以内で入力してください。
+              </div>
+            )}
+          </div>
+          <button
+            type='submit'
+            className='bg-gray-400 text-white rounded px-2 py-2 font-bold mt-2'
+          >
+            ログイン
+          </button>
+        </form>
         <CreateStampButton />
       </div>
     </>
