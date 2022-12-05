@@ -1,4 +1,10 @@
-import { collection, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  increment,
+  updateDoc,
+} from 'firebase/firestore';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../firebase';
@@ -52,8 +58,12 @@ const StampDetail = (props: {
   }, []);
 
   async function getStamp() {
-    if (!stamp) return;
+    if (!stamp || stamp.isStamped) return;
     try {
+      const stampRef = doc(db, 'stamps', stamp.id);
+      await updateDoc(stampRef, {
+        stampedCount: increment(1),
+      });
       await idb.stamps.add({
         id: stamp.id,
         name: stamp.name,
@@ -65,7 +75,6 @@ const StampDetail = (props: {
         stampedCount: stamp.stampedCount + 1,
         isStamped: true,
       });
-      // TODO: firestore の stampedCount を更新
     } catch (error) {
       console.warn(`Failed to add ${id}: ${error}`);
     }
