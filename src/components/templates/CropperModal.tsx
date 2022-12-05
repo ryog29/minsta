@@ -31,7 +31,6 @@ const CropperModal = (props: {
     }
   }, [croppedAreaPixels, imgUrl]);
 
-  // TODO: スタンプ画像の形を丸にする
   return (
     <>
       <div className='absolute w-full h-full'>
@@ -40,7 +39,8 @@ const CropperModal = (props: {
           crop={crop}
           zoom={zoom}
           aspect={1}
-          // cropShape={'round'}
+          cropShape={'round'}
+          showGrid={false}
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}

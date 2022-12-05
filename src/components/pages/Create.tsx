@@ -129,6 +129,20 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
       }
 
       dstCtx.putImageData(dst, 0, 0);
+
+      // 枠線を描画
+      dstCtx.beginPath();
+      dstCtx.arc(
+        STAMP_IMAGE_SIZE / 2,
+        STAMP_IMAGE_SIZE / 2,
+        (STAMP_IMAGE_SIZE - 4) / 2,
+        0,
+        Math.PI * 2,
+        false
+      );
+      dstCtx.strokeStyle = '#FF0000';
+      dstCtx.lineWidth = 4;
+      dstCtx.stroke();
     }
   };
 
@@ -150,8 +164,18 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     (async () => {
       if (srcCtx && dstCtx && croppedImgUrl) {
         const img = await createImage(croppedImgUrl);
+        // 画像を円形に切り抜き
+        srcCtx.beginPath();
+        srcCtx.arc(
+          STAMP_IMAGE_SIZE / 2,
+          STAMP_IMAGE_SIZE / 2,
+          STAMP_IMAGE_SIZE / 2,
+          0,
+          Math.PI * 2,
+          false
+        );
+        srcCtx.clip();
         srcCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
-        dstCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
         convertImg(DEFAULT_THRESHOLD);
       }
     })();
