@@ -51,19 +51,18 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
   } = useForm({ mode: 'onChange', criteriaMode: 'all' });
 
   // TODO: 画像のバリデーションをする
-  // TODO: pngで保存する
   const onSubmit = handleSubmit(async (data) => {
     const { stampName, creatorName } = data;
     const { lat, lng } = location.state.mapState.center;
     const stampsCollectionRef = doc(collection(db, 'stamps'));
-    const fileName = `${stampsCollectionRef.id}.jpeg`;
+    const fileName = `${stampsCollectionRef.id}.png`;
     const storageRef = ref(storage, `stamp-images/${fileName}`);
     const dstCanvas: HTMLCanvasElement = document.getElementById(
       'dstCanvas'
     ) as HTMLCanvasElement;
     const blob = await canvasToBlob(dstCanvas);
     const uploadTask = uploadBytesResumable(storageRef, blob, {
-      contentType: 'image/jpeg',
+      contentType: 'image/png',
     });
 
     uploadTask.on(
@@ -187,12 +186,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           戻る
         </NavigationButton>
         <h2>スタンプを作成</h2>
-        <input
-          type='file'
-          capture='environment'
-          accept='image/*'
-          onChange={onFileChange}
-        ></input>
+        <input type='file' accept='image/*' onChange={onFileChange}></input>
         <Modal>
           <CropperModal
             imgUrl={imgUrl}
