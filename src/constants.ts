@@ -10,3 +10,11 @@ export const STAMP_IMAGE_SIZE = 300;
 export const DEFAULT_THRESHOLD = 123;
 export const MAX_STAMP_NAME_LENGTH = 12;
 export const MAX_CREATOR_NAME_LENGTH = 12;
+
+// スタンプカラー
+export const STAMP_COLOR_RED = '#FF0000';
+export const STAMP_COLOR_LIME = '#00FF00';
+export const STAMP_COLOR_BLUE = '#0000FF';
+export const STAMP_COLOR_YELLOW = '#FFFF00';
+export const STAMP_COLOR_AQUA = '#00FFFF';
+export const STAMP_COLOR_FUCHSIA = '#FF00FF';

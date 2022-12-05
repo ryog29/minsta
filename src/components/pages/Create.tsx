@@ -10,6 +10,12 @@ import {
   DEFAULT_THRESHOLD,
   MAX_CREATOR_NAME_LENGTH,
   MAX_STAMP_NAME_LENGTH,
+  STAMP_COLOR_RED,
+  STAMP_COLOR_BLUE,
+  STAMP_COLOR_LIME,
+  STAMP_COLOR_YELLOW,
+  STAMP_COLOR_AQUA,
+  STAMP_COLOR_FUCHSIA,
   STAMP_IMAGE_SIZE,
 } from '../../constants';
 import useModal from '../../hooks/useModal';
@@ -49,6 +55,15 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: 'onChange', criteriaMode: 'all' });
+
+  const [imgUrl, setImgUrl] = useState<string>('');
+  const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
+  const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
+  const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
+  const [stampColor, setStampColor] = useState<string>(STAMP_COLOR_RED);
+  const [stampThreshold, setStampThreshold] =
+    useState<number>(DEFAULT_THRESHOLD);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   // TODO: 画像のバリデーションをする
   const onSubmit = handleSubmit(async (data) => {
@@ -106,46 +121,6 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     );
   });
 
-  const [imgUrl, setImgUrl] = useState<string>('');
-  const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
-  const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
-  const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
-
-  const convertImg = (threshold: number) => {
-    if (srcCtx && dstCtx) {
-      const src = srcCtx.getImageData(0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
-      const dst = srcCtx.createImageData(STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
-
-      for (let i = 0; i < src.data.length; i = i + 4) {
-        const y = ~~(
-          0.299 * src.data[i] +
-          0.587 * src.data[i + 1] +
-          0.114 * src.data[i + 2]
-        );
-        const ret = y > threshold ? 255 : 0;
-        dst.data[i] = 255;
-        dst.data[i + 1] = dst.data[i + 2] = ret;
-        dst.data[i + 3] = src.data[i + 3];
-      }
-
-      dstCtx.putImageData(dst, 0, 0);
-
-      // 枠線を描画
-      dstCtx.beginPath();
-      dstCtx.arc(
-        STAMP_IMAGE_SIZE / 2,
-        STAMP_IMAGE_SIZE / 2,
-        (STAMP_IMAGE_SIZE - 4) / 2,
-        0,
-        Math.PI * 2,
-        false
-      );
-      dstCtx.strokeStyle = '#FF0000';
-      dstCtx.lineWidth = 4;
-      dstCtx.stroke();
-    }
-  };
-
   useEffect(() => {
     const srcCanvas: HTMLCanvasElement = document.createElement('canvas');
     srcCanvas.width = STAMP_IMAGE_SIZE;
@@ -176,10 +151,55 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
         );
         srcCtx.clip();
         srcCtx.drawImage(img, 0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
-        convertImg(DEFAULT_THRESHOLD);
+        setIsLoaded(true);
       }
     })();
   }, [srcCtx, dstCtx, croppedImgUrl]);
+
+  const splitColorCode = (colorCode: string) => {
+    const res = [];
+    res[0] = parseInt(colorCode.slice(1, 3), 16);
+    res[1] = parseInt(colorCode.slice(3, 5), 16);
+    res[2] = parseInt(colorCode.slice(5, 7), 16);
+    return res;
+  };
+
+  useEffect(() => {
+    if (isLoaded && srcCtx && dstCtx) {
+      const src = srcCtx.getImageData(0, 0, STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+      const dst = srcCtx.createImageData(STAMP_IMAGE_SIZE, STAMP_IMAGE_SIZE);
+      const colorCode = splitColorCode(stampColor);
+
+      for (let i = 0; i < src.data.length; i = i + 4) {
+        const y = ~~(
+          0.299 * src.data[i] +
+          0.587 * src.data[i + 1] +
+          0.114 * src.data[i + 2]
+        );
+        const ret = y > stampThreshold ? 255 : 0;
+        dst.data[i] = colorCode[0] || ret;
+        dst.data[i + 1] = colorCode[1] || ret;
+        dst.data[i + 2] = colorCode[2] || ret;
+        dst.data[i + 3] = src.data[i + 3];
+      }
+
+      dstCtx.putImageData(dst, 0, 0);
+
+      // 枠線を描画
+      dstCtx.beginPath();
+      dstCtx.arc(
+        STAMP_IMAGE_SIZE / 2,
+        STAMP_IMAGE_SIZE / 2,
+        (STAMP_IMAGE_SIZE - 4) / 2,
+        0,
+        Math.PI * 2,
+        false
+      );
+      dstCtx.strokeStyle = stampColor;
+      dstCtx.lineWidth = 4;
+      dstCtx.stroke();
+    }
+  }, [isLoaded, srcCtx, dstCtx, stampThreshold, stampColor]);
 
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,6 +207,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
         const reader = new FileReader();
         reader.addEventListener('load', () => {
           if (reader.result) {
+            setIsLoaded(false);
             setImgUrl(reader.result.toString());
             openModal();
           }
@@ -231,9 +252,66 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           step='1'
           defaultValue={DEFAULT_THRESHOLD}
           onChange={(e) => {
-            convertImg(Number(e.target.value));
+            setStampThreshold(Number(e.target.value));
           }}
         ></input>
+        <div>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_RED}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+            defaultChecked={true}
+          />
+          <label className='mr-1'>RED</label>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_LIME}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+          <label className='mr-1'>LIME</label>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_BLUE}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+          <label className='mr-1'>BLUE</label>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_YELLOW}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+          <label className='mr-1'>YELLOW</label>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_AQUA}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+          <label className='mr-1'>AQUA</label>
+          <input
+            type='radio'
+            name='stampColor'
+            value={STAMP_COLOR_FUCHSIA}
+            onChange={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+          <label className='mr-1'>FUCHSIA</label>
+        </div>
         <form onSubmit={onSubmit}>
           <div>
             <label>スタンプ名</label>
