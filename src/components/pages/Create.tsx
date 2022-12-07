@@ -65,7 +65,6 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
     useState<number>(DEFAULT_THRESHOLD);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-  // TODO: 画像のバリデーションをする
   const onSubmit = handleSubmit(async (data) => {
     const { stampName, creatorName } = data;
     const { lat, lng } = location.state.mapState.center;
@@ -231,7 +230,6 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           戻る
         </NavigationButton>
         <h2>スタンプを作成</h2>
-        <input type='file' accept='image/*' onChange={onFileChange}></input>
         <Modal>
           <CropperModal
             imgUrl={imgUrl}
@@ -313,6 +311,19 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           <label className='mr-1'>FUCHSIA</label>
         </div>
         <form onSubmit={onSubmit}>
+          <div>
+            <input
+              {...register('stampImage', {
+                required: true,
+              })}
+              type='file'
+              accept='image/*'
+              onChange={onFileChange}
+            ></input>
+            {errors.stampImage?.type === 'required' && (
+              <div className='text-red-500'>ファイルを選択してください。</div>
+            )}
+          </div>
           <div>
             <label>スタンプ名</label>
             <input
