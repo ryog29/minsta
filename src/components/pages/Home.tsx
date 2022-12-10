@@ -8,7 +8,12 @@ import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
-import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM } from '../../constants';
+import {
+  AVAILABLE_AREA_RADIUS,
+  DEFAULT_ZOOM,
+  MAX_ZOOM,
+  MIN_ZOOM,
+} from '../../constants';
 import Header from '../templates/Header';
 import Menu from '../templates/Menu';
 
@@ -60,7 +65,7 @@ const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
       <Marker position={currentPos}>
         <Circle
           center={currentPos}
-          radius={500}
+          radius={AVAILABLE_AREA_RADIUS}
           pathOptions={{ weight: 2, color: '#0072BC' }}
         />
       </Marker>
