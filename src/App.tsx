@@ -54,11 +54,22 @@ const App = () => {
             <Route path='/' element={<Top />} />
             <Route
               path='/home'
-              element={<Home currentPos={currentPos} mapState={mapState} />}
+              element={
+                <Home
+                  currentPos={currentPos}
+                  setCurrentPos={setCurrentPos}
+                  mapState={mapState}
+                />
+              }
             />
             <Route
               path='/stamps/:id'
-              element={<StampDetail setMapState={setMapState} />}
+              element={
+                <StampDetail
+                  currentPos={currentPos}
+                  setMapState={setMapState}
+                />
+              }
             />
             <Route
               path='/collection'

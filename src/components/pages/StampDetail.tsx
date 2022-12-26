@@ -5,8 +5,10 @@ import {
   increment,
   updateDoc,
 } from 'firebase/firestore';
+import { LatLng, LatLngLiteral } from 'leaflet';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { AVAILABLE_AREA_RADIUS } from '../../constants';
 import { db } from '../../firebase';
 import { idb } from '../../idb';
 import { MapState, Stamp } from '../../types';
@@ -14,9 +16,10 @@ import NavigationButton from '../parts/NavigationButton';
 import Header from '../templates/Header';
 
 const StampDetail = (props: {
+  currentPos: LatLngLiteral;
   setMapState: Dispatch<SetStateAction<MapState>>;
 }) => {
-  const { setMapState } = props;
+  const { currentPos, setMapState } = props;
   const navigate = useNavigate();
   const { id } = useParams();
   if (!id) {
@@ -33,6 +36,8 @@ const StampDetail = (props: {
   }, []);
 
   const [stamp, setStamp] = useState<Stamp>();
+  const [isDisplayMsg, setIsDisplayMsg] = useState<boolean>(false);
+  const [distanceFromStamp, setDistanceFromStamp] = useState<number>();
 
   useEffect(() => {
     (async () => {
@@ -58,7 +63,20 @@ const StampDetail = (props: {
   }, []);
 
   async function getStamp() {
-    if (!stamp || stamp.isStamped) return;
+    if (!currentPos || !stamp || stamp?.isStamped) return;
+
+    // 現在地からスタンプまでの距離を計算し押印可能かチェックする
+    const stampLatLng = new LatLng(
+      stamp.coordinates.latitude,
+      stamp.coordinates.longitude
+    );
+    const distance = Math.ceil(stampLatLng.distanceTo(currentPos));
+    if (distance > AVAILABLE_AREA_RADIUS) {
+      setDistanceFromStamp(distance - AVAILABLE_AREA_RADIUS);
+      setIsDisplayMsg(true);
+      return;
+    }
+
     try {
       const stampRef = doc(db, 'stamps', stamp.id);
       await updateDoc(stampRef, {
@@ -122,6 +140,12 @@ const StampDetail = (props: {
               onClick={getStamp}
             ></img>
           </div>
+        )}
+        {isDisplayMsg && (
+          <p className='text-red-600'>
+            スタンプから離れすぎています。このスタンプを押すにはあと
+            {distanceFromStamp}m以上近づいてください。
+          </p>
         )}
       </div>
     </>

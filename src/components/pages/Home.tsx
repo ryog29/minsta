@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { collection, getDocs } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { MapState, Stamp } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
@@ -17,11 +17,14 @@ import {
 import Header from '../templates/Header';
 import Menu from '../templates/Menu';
 
-const Home = (props: { currentPos: LatLngLiteral; mapState: MapState }) => {
-  const { mapState } = props;
+const Home = (props: {
+  currentPos: LatLngLiteral;
+  setCurrentPos: Dispatch<SetStateAction<LatLngLiteral>>;
+  mapState: MapState;
+}) => {
+  const { currentPos, setCurrentPos, mapState } = props;
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
-  const [currentPos, setCurrentPos] = useState<LatLngLiteral>(props.currentPos);
 
   const navigate = useNavigate();
 
