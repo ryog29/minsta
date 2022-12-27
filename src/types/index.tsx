@@ -5,6 +5,7 @@ export type Stamp = {
   id: string;
   name: string;
   coordinates: GeoPoint;
+  geohash: string;
   address: string;
   imageUrl: string;
   createdBy: string;

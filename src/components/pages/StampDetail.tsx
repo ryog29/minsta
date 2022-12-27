@@ -49,6 +49,7 @@ const StampDetail = (props: {
           id: docSnap.id,
           name: docSnap.data().name,
           coordinates: docSnap.data().coordinates,
+          geohash: docSnap.data().geohash,
           address: docSnap.data().address,
           imageUrl: docSnap.data().imageUrl,
           createdBy: docSnap.data().createdBy,
@@ -128,6 +129,7 @@ const StampDetail = (props: {
             <ul>
               <li>id: {stamp.id}</li>
               <li>name: {stamp.name}</li>
+              <li>geohash: {stamp.geohash}</li>
               <li>address: {stamp.address}</li>
               <li>createdBy: {stamp.createdBy}</li>
               <li>createdAt: {stamp.createdAt.toDate().toString()}</li>

@@ -39,6 +39,7 @@ const Home = (props: {
               id: doc.id,
               name: doc.data().name,
               coordinates: doc.data().coordinates,
+              geohash: doc.data().geohash,
               address: doc.data().address,
               imageUrl: doc.data().imageUrl,
               createdBy: doc.data().createdBy,

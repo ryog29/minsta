@@ -16,6 +16,7 @@
     "dexie": "^3.2.2",
     "dexie-react-hooks": "^1.1.1",
     "firebase": "^9.13.0",
+    "geofire-common": "^6.0.0",
     "leaflet": "^1.9.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
