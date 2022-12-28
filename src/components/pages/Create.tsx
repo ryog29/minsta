@@ -5,9 +5,11 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   DEFAULT_THRESHOLD,
+  DEFAULT_ZOOM,
+  MIN_LOCATABLE_DISTANCE,
   STAMP_COLOR_RED,
   STAMP_IMAGE_SIZE,
 } from '../../constants';
@@ -19,19 +21,37 @@ import Header from '../templates/Header';
 import { createImage } from '../../lib/createImage';
 import ColorSelector from '../templates/ColorSelector';
 import StampInputForm from '../templates/StampInputForm';
+import { LatLng, LatLngLiteral } from 'leaflet';
+import { getStampsInBounds } from '../../lib/getStampsInBounds';
 
-const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
-  const { setMapState } = props;
+const Create = (props: {
+  currentPos: LatLngLiteral;
+  setMapState: Dispatch<SetStateAction<MapState>>;
+}) => {
+  const { currentPos, setMapState } = props;
   const navigate = useNavigate();
 
   const { Modal, openModal, closeModal } = useModal();
 
-  const location = useLocation();
+  const [isDisplayMsg, setIsDisplayMsg] = useState<boolean>(false);
+
   useEffect(() => {
-    if (location.state?.from === 'Home') {
-      const { mapState } = location.state;
-      setMapState(mapState);
-    }
+    (async () => {
+      setMapState({
+        center: currentPos,
+        zoom: DEFAULT_ZOOM,
+      });
+
+      // 現在地から近い位置に既にスタンプがある場合はエラーメッセージを表示
+      // TODO:メッセージはモーダル表示にして作成不可の時はホーム画面に戻すようにする
+      const stampsInAvailableArea = await getStampsInBounds(
+        [currentPos.lat, currentPos.lng],
+        MIN_LOCATABLE_DISTANCE
+      );
+      if (stampsInAvailableArea.length !== 0) {
+        setIsDisplayMsg(true);
+      }
+    })();
   }, []);
 
   const [imgUrl, setImgUrl] = useState<string>('');
@@ -153,6 +173,11 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           戻る
         </NavigationButton>
         <h2>スタンプを作成</h2>
+        {isDisplayMsg && (
+          <p className='text-red-600'>
+            近くにスタンプがあるためスタンプを作成できません。新しいスタンプを作成するには既存のスタンプから十分に離れてください。
+          </p>
+        )}
         <Modal>
           <CropperModal
             imgUrl={imgUrl}
@@ -179,7 +204,7 @@ const Create = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
         <ColorSelector setStampColor={setStampColor}></ColorSelector>
         <StampInputForm
           onFileChange={onFileChange}
-          position={location.state.mapState.center}
+          position={new LatLng(currentPos.lat, currentPos.lng)}
         ></StampInputForm>
       </div>
     </>

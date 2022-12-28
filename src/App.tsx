@@ -77,7 +77,9 @@ const App = () => {
             />
             <Route
               path='/create'
-              element={<Create setMapState={setMapState} />}
+              element={
+                <Create currentPos={currentPos} setMapState={setMapState} />
+              }
             />
             <Route path='/help' element={<Help setMapState={setMapState} />} />
             <Route path='*' element={<NotFound />} />

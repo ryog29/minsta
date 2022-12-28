@@ -11,6 +11,9 @@ export const MIN_ZOOM = 6;
 // スタンプ取得可能エリアの半径(m)
 export const AVAILABLE_AREA_RADIUS = 700;
 
+// スタンプ配置間隔の最小距離(m)
+export const MIN_LOCATABLE_DISTANCE = 50;
+
 // スタンプ情報
 export const STAMP_IMAGE_SIZE = 300;
 export const DEFAULT_THRESHOLD = 123;
