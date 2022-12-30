@@ -1,21 +1,30 @@
 /* eslint-disable react/prop-types */
 import { collection, getDocs } from 'firebase/firestore';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { db } from '../../firebase';
 import { MapState, Stamp } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
-import { Icon, LatLng, LatLngLiteral, Map } from 'leaflet';
+import { Icon, LatLng, LatLngLiteral, LocationEvent, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
 import {
   AVAILABLE_AREA_RADIUS,
   DEFAULT_ZOOM,
+  INIT_FETCH_RADIUS,
+  INIT_FETCH_ZOOM,
   MAX_ZOOM,
   MIN_ZOOM,
 } from '../../constants';
 import Header from '../templates/Header';
 import Menu from '../templates/Menu';
+import { getStampsInBounds } from '../../lib/getStampsInBounds';
 
 const Home = (props: {
   currentPos: LatLngLiteral;
@@ -25,29 +34,17 @@ const Home = (props: {
   const { currentPos, setCurrentPos, mapState } = props;
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
+  const [isAllFetch, setIsAllFetch] = useState<boolean>(false);
+  const [initPos] = useState<LatLngLiteral>(currentPos);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
-      const stampsCollectionRef = collection(db, 'stamps');
-      const querySnapshot = await getDocs(stampsCollectionRef);
       setStamps(
-        await Promise.all(
-          querySnapshot.docs.map(async (doc) => {
-            return {
-              id: doc.id,
-              name: doc.data().name,
-              coordinates: doc.data().coordinates,
-              geohash: doc.data().geohash,
-              address: doc.data().address,
-              imageUrl: doc.data().imageUrl,
-              createdBy: doc.data().createdBy,
-              createdAt: doc.data().createdAt,
-              stampedCount: doc.data().stampedCount,
-              isStamped: !!(await idb.stamps.get(doc.id)),
-            };
-          })
+        await getStampsInBounds(
+          [currentPos.lat, currentPos.lng],
+          INIT_FETCH_RADIUS
         )
       );
     })();
@@ -57,12 +54,20 @@ const Home = (props: {
     const { map } = props;
     if (!map) return <></>;
 
-    useEffect(() => {
-      map.locate({ watch: true }).on('locationfound', function (e) {
+    const locationfoundCb = useCallback(
+      (e: LocationEvent) => {
         // TODO: 位置情報の変更に追従させる
         // map.setView(e.latlng, map.getZoom());
         setCurrentPos(e.latlng);
-      });
+      },
+      [map, setCurrentPos]
+    );
+
+    useEffect(() => {
+      map.locate({ watch: true }).on('locationfound', locationfoundCb);
+      return () => {
+        map.off('locationfound', locationfoundCb);
+      };
     }, [map]);
 
     return (
@@ -75,6 +80,62 @@ const Home = (props: {
       </Marker>
     );
   };
+
+  // 初回フェッチの範囲外を表示したかどうかを判定
+  const StampFetchJudger = (props: {
+    map: Map | null;
+    initPos: LatLngLiteral;
+  }) => {
+    const { map, initPos } = props;
+    // 全てのスタンプをフェッチしたらこのコンポーネントは無効化
+    if (!map || isAllFetch) return null;
+
+    const moveendCb = async () => {
+      const distance = map.getCenter().distanceTo(initPos);
+      const zoom = map.getZoom();
+      if (distance > INIT_FETCH_RADIUS || zoom < INIT_FETCH_ZOOM) {
+        setIsAllFetch(true);
+        map.off('moveend', moveendCb);
+      }
+    };
+
+    useEffect(() => {
+      map.on('moveend', moveendCb);
+      return () => {
+        map.off('moveend', moveendCb);
+      };
+    }, []);
+
+    return null;
+  };
+
+  // 全てのスタンプをフェッチ
+  useEffect(() => {
+    (async () => {
+      if (isAllFetch) {
+        const stampsCollectionRef = collection(db, 'stamps');
+        const querySnapshot = await getDocs(stampsCollectionRef);
+        setStamps(
+          await Promise.all(
+            querySnapshot.docs.map(async (doc) => {
+              return {
+                id: doc.id,
+                name: doc.data().name,
+                coordinates: doc.data().coordinates,
+                geohash: doc.data().geohash,
+                address: doc.data().address,
+                imageUrl: doc.data().imageUrl,
+                createdBy: doc.data().createdBy,
+                createdAt: doc.data().createdAt,
+                stampedCount: doc.data().stampedCount,
+                isStamped: !!(await idb.stamps.get(doc.id)),
+              };
+            })
+          )
+        );
+      }
+    })();
+  }, [isAllFetch]);
 
   return (
     <div>
@@ -124,6 +185,7 @@ const Home = (props: {
             }}
           ></Marker>
         ))}
+        <StampFetchJudger map={map} initPos={initPos} />
         <CurrentPositionMarker map={map} />
       </MapContainer>
       <Menu

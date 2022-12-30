@@ -27,3 +27,8 @@ export const STAMP_COLOR_BLUE = '#0000FF';
 export const STAMP_COLOR_YELLOW = '#FFFF00';
 export const STAMP_COLOR_AQUA = '#00FFFF';
 export const STAMP_COLOR_FUCHSIA = '#FF00FF';
+
+// 初回フェッチ範囲のズームレベル
+export const INIT_FETCH_ZOOM = 13;
+// 初回フェッチ範囲の距離(m)
+export const INIT_FETCH_RADIUS = 10000;

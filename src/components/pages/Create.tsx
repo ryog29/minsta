@@ -48,7 +48,18 @@ const Create = (props: {
         [currentPos.lat, currentPos.lng],
         MIN_LOCATABLE_DISTANCE
       );
-      if (stampsInAvailableArea.length !== 0) {
+      // geohashによる検索で取得したデータに対して一つずつ厳密な距離チェック
+      const res = stampsInAvailableArea.map((stamp) => {
+        const stampLatLng = new LatLng(
+          stamp.coordinates.latitude,
+          stamp.coordinates.longitude
+        );
+        const distance = Math.ceil(stampLatLng.distanceTo(currentPos));
+        if (distance < MIN_LOCATABLE_DISTANCE) {
+          return stamp;
+        }
+      });
+      if (res.length !== 0) {
         setIsDisplayMsg(true);
       }
     })();
