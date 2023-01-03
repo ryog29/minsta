@@ -16,4 +16,8 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
 export const storage = getStorage();
 
+// エミュレータに接続
+// connectFirestoreEmulator(db, 'localhost', 8080);
+// connectStorageEmulator(storage, 'localhost', 9199);
+
 export default app;

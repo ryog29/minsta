@@ -10,6 +10,7 @@ import Create from './components/pages/Create';
 import Help from './components/pages/Help';
 import Top from './components/pages/Top';
 import NotFound from './components/pages/NotFound';
+import Admin from './components/pages/Admin';
 
 const App = () => {
   // 位置情報の取得が完了したかどうか
@@ -82,6 +83,10 @@ const App = () => {
               }
             />
             <Route path='/help' element={<Help setMapState={setMapState} />} />
+            <Route
+              path='/admin'
+              element={<Admin setMapState={setMapState} />}
+            />
             <Route path='*' element={<NotFound />} />
           </Routes>
         </div>
