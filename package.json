@@ -23,7 +23,9 @@
     "react-easy-crop": "^4.6.2",
     "react-hook-form": "^7.40.0",
     "react-leaflet": "^4.1.0",
-    "react-router-dom": "^6.4.3"
+    "react-router-dom": "^6.4.3",
+    "supercluster": "^7.1.5",
+    "use-supercluster": "^0.4.0"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^2.0.5",

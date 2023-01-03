@@ -10,7 +10,8 @@ import {
 import { db } from '../../firebase';
 import { MapState, Stamp } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
-import { Icon, LatLng, LatLngLiteral, LocationEvent, Map } from 'leaflet';
+import { Icon, LatLngLiteral, LocationEvent, Map } from 'leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
@@ -25,6 +26,17 @@ import {
 import Header from '../templates/Header';
 import Menu from '../templates/Menu';
 import { getStampsInBounds } from '../../lib/getStampsInBounds';
+import useSupercluster from 'use-supercluster';
+
+const fetchIcon = (count: number, size: number) => {
+  return L.divIcon({
+    html: `<div style=
+      "width: ${size}px; height: ${size}px; color: #fff; background: #1978c8; border-radius: 50%;
+      padding: 10px; display: flex; justify-content: center; align-items: center;"> ${count}
+      </div>`,
+    className: '',
+  });
+};
 
 const Home = (props: {
   currentPos: LatLngLiteral;
@@ -34,6 +46,8 @@ const Home = (props: {
   const { currentPos, setCurrentPos, mapState } = props;
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
+  const [bounds, setBounds] = useState<[number, number, number, number]>();
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [isAllFetch, setIsAllFetch] = useState<boolean>(false);
   const [initPos] = useState<LatLngLiteral>(currentPos);
 
@@ -137,6 +151,44 @@ const Home = (props: {
     })();
   }, [isAllFetch]);
 
+  const updateMap = useCallback(() => {
+    if (map) {
+      const b = map.getBounds();
+      setBounds([
+        b.getSouthWest().lng,
+        b.getSouthWest().lat,
+        b.getNorthEast().lng,
+        b.getNorthEast().lat,
+      ]);
+      setZoom(map.getZoom());
+    }
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      map.on('moveend', updateMap);
+      return () => {
+        map.off('moveend', updateMap);
+      };
+    }
+  }, [map, updateMap]);
+
+  const points = stamps.map((stamp) => ({
+    type: 'Feature',
+    properties: { cluster: false, ...stamp },
+    geometry: {
+      type: 'Point',
+      coordinates: [stamp.coordinates.longitude, stamp.coordinates.latitude],
+    },
+  }));
+
+  const { clusters, supercluster } = useSupercluster({
+    points,
+    bounds,
+    zoom,
+    options: { radius: 500, maxZoom: MAX_ZOOM },
+  });
+
   return (
     <div>
       <Header className={'absolute z-10 ml-2 mt-2'} />
@@ -153,38 +205,63 @@ const Home = (props: {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
         />
-        {stamps.map((stamp) => (
-          <Marker
-            key={stamp.id}
-            position={
-              new LatLng(
-                stamp.coordinates.latitude,
-                stamp.coordinates.longitude
-              )
-            }
-            icon={
-              new Icon({
-                iconUrl: stamp.imageUrl,
-                iconSize: [70, 70],
-                className: stamp.isStamped ? '' : 'filter grayscale opacity-70',
-              })
-            }
-            eventHandlers={{
-              click: () => {
-                navigate(`/stamps/${stamp.id}`, {
-                  state: {
-                    from: 'Home',
-                    mapState: {
-                      center: map?.getCenter(),
-                      zoom: map?.getZoom(),
-                    },
+        {clusters.map((cluster) => {
+          const [longitude, latitude] = cluster.geometry.coordinates;
+          const { cluster: isCluster, point_count: pointCount } =
+            cluster.properties;
+          if (isCluster) {
+            return (
+              <Marker
+                key={cluster.id}
+                position={[latitude, longitude]}
+                icon={fetchIcon(
+                  pointCount,
+                  30 + (pointCount / points.length) * 50
+                )}
+                eventHandlers={{
+                  click: () => {
+                    const expansionZoom = Math.min(
+                      supercluster.getClusterExpansionZoom(cluster.id),
+                      14
+                    );
+                    map?.setView([latitude, longitude], expansionZoom, {
+                      animate: true,
+                    });
                   },
-                  replace: true,
-                });
-              },
-            }}
-          ></Marker>
-        ))}
+                }}
+              ></Marker>
+            );
+          }
+          return (
+            <Marker
+              key={cluster.properties.id}
+              position={[latitude, longitude]}
+              icon={
+                new Icon({
+                  iconUrl: cluster.properties.imageUrl,
+                  iconSize: [70, 70],
+                  className: cluster.properties.isStamped
+                    ? ''
+                    : 'filter grayscale opacity-70',
+                })
+              }
+              eventHandlers={{
+                click: () => {
+                  navigate(`/stamps/${cluster.properties.id}`, {
+                    state: {
+                      from: 'Home',
+                      mapState: {
+                        center: map?.getCenter(),
+                        zoom: map?.getZoom(),
+                      },
+                    },
+                    replace: true,
+                  });
+                },
+              }}
+            />
+          );
+        })}
         <StampFetchJudger map={map} initPos={initPos} />
         <CurrentPositionMarker map={map} />
       </MapContainer>
