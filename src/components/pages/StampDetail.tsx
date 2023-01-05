@@ -45,6 +45,7 @@ const StampDetail = (props: {
       const stampDocRef = doc(stampsCollectionRef, id);
       const docSnap = await getDoc(stampDocRef);
       if (docSnap.exists()) {
+        const idbStamp = await idb.stamps.get(id);
         setStamp({
           id: docSnap.id,
           name: docSnap.data().name,
@@ -55,7 +56,7 @@ const StampDetail = (props: {
           createdBy: docSnap.data().createdBy,
           createdAt: docSnap.data().createdAt,
           stampedCount: docSnap.data().stampedCount,
-          isStamped: !!(await idb.stamps.get(id)),
+          isStamped: idbStamp ? idbStamp.isStamped : false,
         });
       } else {
         console.warn(`Not found stamp (id:${id})`);
@@ -83,10 +84,8 @@ const StampDetail = (props: {
       await updateDoc(stampRef, {
         stampedCount: increment(1),
       });
-      await idb.stamps.add({
-        id: stamp.id,
-        name: stamp.name,
-        imageUrl: stamp.imageUrl,
+      await idb.stamps.update(stamp.id, {
+        isStamped: true,
         stampedAt: new Date(),
       });
       setStamp({

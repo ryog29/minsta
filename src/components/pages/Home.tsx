@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { collection, getDocs } from 'firebase/firestore';
 import {
   Dispatch,
   SetStateAction,
@@ -7,26 +6,22 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { db } from '../../firebase';
-import { MapState, Stamp } from '../../types';
+import { MapState } from '../../types';
 import { Circle, MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { Icon, LatLngLiteral, LocationEvent, Map } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
-import { idb } from '../../idb';
 import {
   AVAILABLE_AREA_RADIUS,
   DEFAULT_ZOOM,
-  INIT_FETCH_RADIUS,
-  INIT_FETCH_ZOOM,
   MAX_ZOOM,
   MIN_ZOOM,
 } from '../../constants';
 import Header from '../templates/Header';
 import Menu from '../templates/Menu';
-import { getStampsInBounds } from '../../lib/getStampsInBounds';
 import useSupercluster from 'use-supercluster';
+import useFetchStamps from '../../hooks/useFetchStamps';
 
 const fetchIcon = (count: number, size: number) => {
   return L.divIcon({
@@ -44,25 +39,13 @@ const Home = (props: {
   mapState: MapState;
 }) => {
   const { currentPos, setCurrentPos, mapState } = props;
-  const [stamps, setStamps] = useState<Stamp[]>([]);
   const [map, setMap] = useState<Map | null>(null);
   const [bounds, setBounds] = useState<[number, number, number, number]>();
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [isAllFetch, setIsAllFetch] = useState<boolean>(false);
-  const [initPos] = useState<LatLngLiteral>(currentPos);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    (async () => {
-      setStamps(
-        await getStampsInBounds(
-          [currentPos.lat, currentPos.lng],
-          INIT_FETCH_RADIUS
-        )
-      );
-    })();
-  }, []);
+  const stamps = useFetchStamps();
 
   const CurrentPositionMarker = (props: { map: Map | null }) => {
     const { map } = props;
@@ -95,62 +78,6 @@ const Home = (props: {
     );
   };
 
-  // 初回フェッチの範囲外を表示したかどうかを判定
-  const StampFetchJudger = (props: {
-    map: Map | null;
-    initPos: LatLngLiteral;
-  }) => {
-    const { map, initPos } = props;
-    // 全てのスタンプをフェッチしたらこのコンポーネントは無効化
-    if (!map || isAllFetch) return null;
-
-    const moveendCb = async () => {
-      const distance = map.getCenter().distanceTo(initPos);
-      const zoom = map.getZoom();
-      if (distance > INIT_FETCH_RADIUS || zoom < INIT_FETCH_ZOOM) {
-        setIsAllFetch(true);
-        map.off('moveend', moveendCb);
-      }
-    };
-
-    useEffect(() => {
-      map.on('moveend', moveendCb);
-      return () => {
-        map.off('moveend', moveendCb);
-      };
-    }, []);
-
-    return null;
-  };
-
-  // 全てのスタンプをフェッチ
-  useEffect(() => {
-    (async () => {
-      if (isAllFetch) {
-        const stampsCollectionRef = collection(db, 'stamps');
-        const querySnapshot = await getDocs(stampsCollectionRef);
-        setStamps(
-          await Promise.all(
-            querySnapshot.docs.map(async (doc) => {
-              return {
-                id: doc.id,
-                name: doc.data().name,
-                coordinates: doc.data().coordinates,
-                geohash: doc.data().geohash,
-                address: doc.data().address,
-                imageUrl: doc.data().imageUrl,
-                createdBy: doc.data().createdBy,
-                createdAt: doc.data().createdAt,
-                stampedCount: doc.data().stampedCount,
-                isStamped: !!(await idb.stamps.get(doc.id)),
-              };
-            })
-          )
-        );
-      }
-    })();
-  }, [isAllFetch]);
-
   const updateMap = useCallback(() => {
     if (map) {
       const b = map.getBounds();
@@ -166,6 +93,8 @@ const Home = (props: {
 
   useEffect(() => {
     if (map) {
+      // 最初の表示で bounds をセットするために一度実行する
+      updateMap();
       map.on('moveend', updateMap);
       return () => {
         map.off('moveend', updateMap);
@@ -178,7 +107,7 @@ const Home = (props: {
     properties: { cluster: false, ...stamp },
     geometry: {
       type: 'Point',
-      coordinates: [stamp.coordinates.longitude, stamp.coordinates.latitude],
+      coordinates: [stamp.latLng.lng, stamp.latLng.lat],
     },
   }));
 
@@ -186,7 +115,7 @@ const Home = (props: {
     points,
     bounds,
     zoom,
-    options: { radius: 500, maxZoom: MAX_ZOOM },
+    options: { radius: 150, maxZoom: MAX_ZOOM },
   });
 
   return (
@@ -262,7 +191,6 @@ const Home = (props: {
             />
           );
         })}
-        <StampFetchJudger map={map} initPos={initPos} />
         <CurrentPositionMarker map={map} />
       </MapContainer>
       <Menu

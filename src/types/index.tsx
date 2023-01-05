@@ -16,9 +16,11 @@ export type Stamp = {
 
 export type StampIDB = {
   id: string;
-  name: string;
+  latLng: LatLngLiteral;
   imageUrl: string;
-  stampedAt: Date;
+  isStamped: boolean;
+  fetchedAt: Date;
+  stampedAt?: Date;
 };
 
 export type MapState = {

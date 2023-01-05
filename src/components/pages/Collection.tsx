@@ -11,7 +11,9 @@ const Collection = (props: {
 }) => {
   const { setMapState } = props;
   const navigate = useNavigate();
-  const stamps = useLiveQuery(() => idb.stamps.toArray());
+  const stamps = useLiveQuery(() =>
+    idb.stamps.filter((stamp) => stamp.isStamped).toArray()
+  );
 
   const location = useLocation();
   useEffect(() => {
@@ -39,8 +41,6 @@ const Collection = (props: {
         </h2>
         {stamps?.map((stamp) => (
           <div key={stamp.id} className='mt-2'>
-            <p>スタンプ名: {stamp.name}</p>
-            <p>押した日時: {stamp.stampedAt.toISOString()}</p>
             <Link
               to={`/stamps/${stamp.id}`}
               state={{ from: 'Collection' }}
