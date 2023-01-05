@@ -16,6 +16,7 @@ import {
 import { db, storage } from '../../firebase';
 import { canvasToBlob } from '../../lib/canvasToBlob';
 import * as geofire from 'geofire-common';
+import { getAddress } from '../../lib/getAddress';
 
 const StampInputForm = (props: {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -34,6 +35,7 @@ const StampInputForm = (props: {
   const onSubmit = handleSubmit(async (data) => {
     const { stampName, creatorName } = data;
     const { lat, lng } = position;
+    const address = await getAddress(lat, lng);
     const stampsCollectionRef = doc(collection(db, 'stamps'));
     const fileName = `${stampsCollectionRef.id}.png`;
     const storageRef = ref(storage, `stamp-images/${fileName}`);
@@ -70,7 +72,7 @@ const StampInputForm = (props: {
             name: stampName,
             coordinates: new GeoPoint(lat, lng),
             geohash: geofire.geohashForLocation([lat, lng]),
-            address: 'テスト県テスト市テスト1-1-1',
+            address: address,
             imageUrl: downloadUrl,
             createdBy: creatorName,
             createdAt: serverTimestamp(),
