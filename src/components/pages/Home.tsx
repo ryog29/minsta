@@ -25,6 +25,7 @@ import useFetchStamps from '../../hooks/useFetchStamps';
 import iconStampGray from '../../assets/icon_stamp_gray.svg';
 import iconStampRed from '../../assets/icon_stamp_red.svg';
 import iconStampBlue from '../../assets/icon_stamp_blue.svg';
+import iconCurrentPosition from '../../assets/icon_current_position.svg';
 
 const fetchIcon = (count: number, size: number) => {
   return L.divIcon({
@@ -71,7 +72,16 @@ const Home = (props: {
     }, [map]);
 
     return (
-      <Marker position={currentPos}>
+      <Marker
+        position={currentPos}
+        icon={
+          new Icon({
+            iconUrl: iconCurrentPosition,
+            iconSize: [30, 30],
+          })
+        }
+        zIndexOffset={-1}
+      >
         <Circle
           center={currentPos}
           radius={AVAILABLE_AREA_RADIUS}
