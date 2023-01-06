@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { idb } from '../../idb';
 import { setMockData } from '../../lib/setMockData';
 import { MapState } from '../../types';
 import NavigationButton from '../parts/NavigationButton';
@@ -38,6 +39,15 @@ const Admin = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
           }}
         >
           モックデータ作成
+        </NavigationButton>
+        <NavigationButton
+          className='my-1'
+          onClick={async () => {
+            await idb.stamps.clear();
+            navigate(`/home`, { state: { from: 'Help' }, replace: true });
+          }}
+        >
+          IDBクリア
         </NavigationButton>
       </div>
     </>
