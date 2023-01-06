@@ -22,15 +22,16 @@ import Header from '../templates/Header';
 import Menu from '../templates/Menu';
 import useSupercluster from 'use-supercluster';
 import useFetchStamps from '../../hooks/useFetchStamps';
-import iconStampOff from '../../assets/icon_stamp_off.svg';
-import iconStampOn from '../../assets/icon_stamp_on.svg';
+import iconStampGray from '../../assets/icon_stamp_gray.svg';
+import iconStampRed from '../../assets/icon_stamp_red.svg';
+import iconStampBlue from '../../assets/icon_stamp_blue.svg';
 
 const fetchIcon = (count: number, size: number) => {
   return L.divIcon({
     html: `<div style=
-      "width: ${size}px; height: ${size}px; color: #fff; background: #1978c8; border-radius: 50%;
-      padding: 10px; display: flex; justify-content: center; align-items: center;"> ${count}
-      </div>`,
+      "width: ${size}px; height: ${size}px; color: #fff; font-weight: bold;
+      font-size: 1.2em; background-image: url(${iconStampBlue}); display: flex;
+      justify-content: center; align-items: center;"> ${count} </div>`,
     className: '',
   });
 };
@@ -170,11 +171,11 @@ const Home = (props: {
               icon={
                 cluster.properties.isStamped
                   ? new Icon({
-                      iconUrl: iconStampOn,
+                      iconUrl: iconStampRed,
                       iconSize: [30, 30],
                     })
                   : new Icon({
-                      iconUrl: iconStampOff,
+                      iconUrl: iconStampGray,
                       iconSize: [30, 30],
                     })
               }
