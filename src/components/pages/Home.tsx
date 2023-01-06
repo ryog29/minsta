@@ -22,6 +22,8 @@ import Header from '../templates/Header';
 import Menu from '../templates/Menu';
 import useSupercluster from 'use-supercluster';
 import useFetchStamps from '../../hooks/useFetchStamps';
+import iconStampOff from '../../assets/icon_stamp_off.svg';
+import iconStampOn from '../../assets/icon_stamp_on.svg';
 
 const fetchIcon = (count: number, size: number) => {
   return L.divIcon({
@@ -166,13 +168,15 @@ const Home = (props: {
               key={cluster.properties.id}
               position={[latitude, longitude]}
               icon={
-                new Icon({
-                  iconUrl: cluster.properties.imageUrl,
-                  iconSize: [70, 70],
-                  className: cluster.properties.isStamped
-                    ? ''
-                    : 'filter grayscale opacity-70',
-                })
+                cluster.properties.isStamped
+                  ? new Icon({
+                      iconUrl: iconStampOn,
+                      iconSize: [30, 30],
+                    })
+                  : new Icon({
+                      iconUrl: iconStampOff,
+                      iconSize: [30, 30],
+                    })
               }
               eventHandlers={{
                 click: () => {
