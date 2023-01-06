@@ -11,8 +11,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AVAILABLE_AREA_RADIUS } from '../../constants';
 import { db } from '../../firebase';
 import { idb } from '../../idb';
+import { formatDate } from '../../lib/formatDate';
 import { MapState, Stamp } from '../../types';
 import NavigationButton from '../parts/NavigationButton';
+import TapButton from '../parts/TapButton';
 import Header from '../templates/Header';
 
 const StampDetail = (props: {
@@ -57,6 +59,7 @@ const StampDetail = (props: {
           createdAt: docSnap.data().createdAt,
           stampedCount: docSnap.data().stampedCount,
           isStamped: idbStamp ? idbStamp.isStamped : false,
+          stampedAt: idbStamp?.stampedAt,
         });
       } else {
         console.warn(`Not found stamp (id:${id})`);
@@ -84,14 +87,16 @@ const StampDetail = (props: {
       await updateDoc(stampRef, {
         stampedCount: increment(1),
       });
+      const stampedAt = new Date();
       await idb.stamps.update(stamp.id, {
         isStamped: true,
-        stampedAt: new Date(),
+        stampedAt: stampedAt,
       });
       setStamp({
         ...stamp,
         stampedCount: stamp.stampedCount + 1,
         isStamped: true,
+        stampedAt: stampedAt,
       });
     } catch (error) {
       console.warn(`Failed to add ${id}: ${error}`);
@@ -101,9 +106,9 @@ const StampDetail = (props: {
   return (
     <>
       <Header className='ml-2 mt-2' />
-      <div className='ml-2'>
+      <div>
         <NavigationButton
-          className='my-1'
+          className='ml-12 mt-8'
           onClick={() => {
             if (location.state?.from === 'Home') {
               navigate(`/home`, {
@@ -122,24 +127,22 @@ const StampDetail = (props: {
         >
           戻る
         </NavigationButton>
-        <h2 className='mt-2 text-2xl font-bold'>スタンプ詳細</h2>
         {stamp && (
-          <div>
-            <ul>
-              <li>id: {stamp.id}</li>
-              <li>name: {stamp.name}</li>
-              <li>geohash: {stamp.geohash}</li>
-              <li>address: {stamp.address}</li>
-              <li>createdBy: {stamp.createdBy}</li>
-              <li>createdAt: {stamp.createdAt.toDate().toString()}</li>
-              <li>stampedCount: {stamp.stampedCount}</li>
-              <li>isStamped: {String(stamp.isStamped)}</li>
+          <div className='flex flex-col items-center mt-2'>
+            <h2 className='text-3xl font-bold'>{stamp.name}</h2>
+            {stamp.isStamped ? (
+              <img className='mt-5 w-64 h-64' src={stamp.imageUrl}></img>
+            ) : (
+              <TapButton className='mt-5' onClick={getStamp} />
+            )}
+            <ul className='mt-5 font-bold'>
+              <li>場所: {stamp.address}</li>
+              <li>作成者: {stamp.createdBy}</li>
+              <li>押された回数: {stamp.stampedCount}</li>
+              <li>
+                押した日時: {stamp.stampedAt && formatDate(stamp.stampedAt)}
+              </li>
             </ul>
-            <img
-              className={stamp.isStamped ? '' : 'filter grayscale opacity-70'}
-              src={stamp.imageUrl}
-              onClick={getStamp}
-            ></img>
           </div>
         )}
         {isDisplayMsg && (

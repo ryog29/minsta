@@ -12,6 +12,7 @@ export type Stamp = {
   createdAt: Timestamp;
   stampedCount: number;
   isStamped: boolean;
+  stampedAt?: Date;
 };
 
 export type StampIDB = {
