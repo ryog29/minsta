@@ -12,7 +12,10 @@ const Collection = (props: {
   const { setMapState } = props;
   const navigate = useNavigate();
   const stamps = useLiveQuery(() =>
-    idb.stamps.filter((stamp) => stamp.isStamped).toArray()
+    idb.stamps
+      .filter((stamp) => stamp.isStamped)
+      .reverse()
+      .sortBy('stampedAt')
   );
 
   const location = useLocation();
@@ -23,33 +26,34 @@ const Collection = (props: {
     }
   }, []);
 
-  // TODO: 押した日時順でソートして表示
   return (
     <>
       <Header className='ml-2 mt-2' />
-      <div className='ml-2'>
+      <div>
         <NavigationButton
-          className='my-1'
+          className='ml-12 mt-8'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Collection' }, replace: true });
           }}
         >
           戻る
         </NavigationButton>
-        <h2 className='mt-2 text-2xl font-bold'>
-          集めたスタンプ数: {stamps?.length}
+        <h2 className='mt-3 text-2xl font-bold text-center'>
+          集めたスタンプ: {stamps?.length}個
         </h2>
-        {stamps?.map((stamp) => (
-          <div key={stamp.id} className='mt-2'>
-            <Link
-              to={`/stamps/${stamp.id}`}
-              state={{ from: 'Collection' }}
-              replace={true}
-            >
-              <img src={stamp.imageUrl} className='w-52 h-52'></img>
-            </Link>
-          </div>
-        ))}
+        <div className='mt-2 mx-12 grid grid-cols-3'>
+          {stamps?.map((stamp) => (
+            <div key={stamp.id} className='mx-1 my-1'>
+              <Link
+                to={`/stamps/${stamp.id}`}
+                state={{ from: 'Collection' }}
+                replace={true}
+              >
+                <img src={stamp.imageUrl}></img>
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
