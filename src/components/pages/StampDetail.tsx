@@ -38,7 +38,7 @@ const StampDetail = (props: {
   }, []);
 
   const [stamp, setStamp] = useState<Stamp>();
-  const [isDisplayMsg, setIsDisplayMsg] = useState<boolean>(false);
+  const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [distanceFromStamp, setDistanceFromStamp] = useState<number>();
 
   useEffect(() => {
@@ -67,21 +67,23 @@ const StampDetail = (props: {
     })();
   }, []);
 
-  async function getStamp() {
-    if (!currentPos || !stamp || stamp?.isStamped) return;
-
-    // 現在地からスタンプまでの距離を計算し押印可能かチェックする
-    const stampLatLng = new LatLng(
-      stamp.coordinates.latitude,
-      stamp.coordinates.longitude
-    );
-    const distance = Math.ceil(stampLatLng.distanceTo(currentPos));
-    if (distance > AVAILABLE_AREA_RADIUS) {
+  useEffect(() => {
+    // 現在地からスタンプまでの距離を計算し押印可能かチェック
+    if (currentPos && stamp) {
+      const stampLatLng = new LatLng(
+        stamp.coordinates.latitude,
+        stamp.coordinates.longitude
+      );
+      const distance = Math.ceil(stampLatLng.distanceTo(currentPos));
       setDistanceFromStamp(distance - AVAILABLE_AREA_RADIUS);
-      setIsDisplayMsg(true);
-      return;
+      if (distance <= AVAILABLE_AREA_RADIUS) {
+        setIsAvailable(true);
+      }
     }
+  }, [currentPos, stamp]);
 
+  async function getStamp() {
+    if (!stamp) return;
     try {
       const stampRef = doc(db, 'stamps', stamp.id);
       await updateDoc(stampRef, {
@@ -132,8 +134,16 @@ const StampDetail = (props: {
             <h2 className='text-3xl font-bold'>{stamp.name}</h2>
             {stamp.isStamped ? (
               <img className='mt-5 w-64 h-64' src={stamp.imageUrl}></img>
-            ) : (
+            ) : isAvailable ? (
               <TapButton className='mt-5' onClick={getStamp} />
+            ) : (
+              <p className='my-24 font-bold text-red-600'>
+                スタンプから離れすぎています。
+                <br />
+                このスタンプを押すにはあと
+                <br />
+                {distanceFromStamp}m以上近づいてください。
+              </p>
             )}
             <ul className='mt-5 font-bold'>
               <li>場所: {stamp.address}</li>
@@ -144,12 +154,6 @@ const StampDetail = (props: {
               </li>
             </ul>
           </div>
-        )}
-        {isDisplayMsg && (
-          <p className='text-red-600'>
-            スタンプから離れすぎています。このスタンプを押すにはあと
-            {distanceFromStamp}m以上近づいてください。
-          </p>
         )}
       </div>
     </>
