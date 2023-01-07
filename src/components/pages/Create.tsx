@@ -69,6 +69,7 @@ const Create = (props: {
   const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
   const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
   const [stampColor, setStampColor] = useState<string>(DEFAULT_STAMP_COLOR);
+  const [isReverseColor, setIsReverseColor] = useState<boolean>(false);
   const [stampThreshold, setStampThreshold] =
     useState<number>(DEFAULT_THRESHOLD);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -128,9 +129,10 @@ const Create = (props: {
           0.587 * src.data[i + 1] +
           0.114 * src.data[i + 2]
         );
-        dst.data[i] = y > stampThreshold ? 255 : colorCode[0];
-        dst.data[i + 1] = y > stampThreshold ? 255 : colorCode[1];
-        dst.data[i + 2] = y > stampThreshold ? 255 : colorCode[2];
+        const ret = isReverseColor ? y <= stampThreshold : y > stampThreshold;
+        dst.data[i] = ret ? 255 : colorCode[0];
+        dst.data[i + 1] = ret ? 255 : colorCode[1];
+        dst.data[i + 2] = ret ? 255 : colorCode[2];
         dst.data[i + 3] = src.data[i + 3];
       }
 
@@ -150,7 +152,7 @@ const Create = (props: {
       dstCtx.lineWidth = 4;
       dstCtx.stroke();
     }
-  }, [isLoaded, srcCtx, dstCtx, stampThreshold, stampColor]);
+  }, [isLoaded, srcCtx, dstCtx, stampThreshold, stampColor, isReverseColor]);
 
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,23 +202,36 @@ const Create = (props: {
           height={STAMP_IMAGE_SIZE}
           className='my-10 mx-auto'
         ></canvas>
-        <input
-          type='range'
-          min='0'
-          max='254'
-          step='1'
-          defaultValue={DEFAULT_THRESHOLD}
-          onChange={(e) => {
-            setStampThreshold(Number(e.target.value));
-          }}
-        ></input>
-        <input
-          type='color'
-          defaultValue={DEFAULT_STAMP_COLOR}
-          onBlur={(e) => {
-            setStampColor(e.target.value);
-          }}
-        ></input>
+        <div>
+          <input
+            type='range'
+            min='0'
+            max='254'
+            step='1'
+            defaultValue={DEFAULT_THRESHOLD}
+            onChange={(e) => {
+              setStampThreshold(Number(e.target.value));
+            }}
+          />
+        </div>
+        <div>
+          <input
+            type='checkbox'
+            onChange={(e) => {
+              setIsReverseColor(e.target.checked);
+            }}
+          />
+          <label>色反転</label>
+        </div>
+        <div>
+          <input
+            type='color'
+            defaultValue={DEFAULT_STAMP_COLOR}
+            onBlur={(e) => {
+              setStampColor(e.target.value);
+            }}
+          />
+        </div>
         <StampInputForm
           onFileChange={onFileChange}
           position={new LatLng(currentPos.lat, currentPos.lng)}
