@@ -32,7 +32,7 @@ const Create = (props: {
 
   const { Modal, openModal, closeModal } = useModal();
 
-  const [isDisplayMsg, setIsDisplayMsg] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
     (async () => {
@@ -59,7 +59,9 @@ const Create = (props: {
         }
       });
       if (res.length !== 0) {
-        setIsDisplayMsg(true);
+        setErrorMsg(
+          '近くにスタンプがあるためスタンプを作成できません。新しいスタンプを作成するには既存のスタンプから十分に離れてください。'
+        );
       }
     })();
   }, []);
@@ -184,11 +186,7 @@ const Create = (props: {
           戻る
         </NavigationButton>
         <h2>スタンプを作成</h2>
-        {isDisplayMsg && (
-          <p className='text-red-600'>
-            近くにスタンプがあるためスタンプを作成できません。新しいスタンプを作成するには既存のスタンプから十分に離れてください。
-          </p>
-        )}
+        {errorMsg && <p className='text-red-600'>{errorMsg}</p>}
         <Modal>
           <CropperModal
             imgUrl={imgUrl}
@@ -228,7 +226,18 @@ const Create = (props: {
             type='color'
             defaultValue={DEFAULT_STAMP_COLOR}
             onBlur={(e) => {
-              setStampColor(e.target.value);
+              const colorCode = splitColorCode(e.target.value);
+              // 色が薄すぎるスタンプを作成できないようにRGB全ての値が同時に200を超えないようチェック
+              const isValid = !colorCode.every((c) => c > 200);
+              if (isValid) {
+                setStampColor(e.target.value);
+                setErrorMsg('');
+              } else {
+                setErrorMsg(
+                  'その色は選択できません。可視性が高い色を選択してください。'
+                );
+                e.target.value = stampColor;
+              }
             }}
           />
         </div>
