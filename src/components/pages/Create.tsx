@@ -7,10 +7,10 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  DEFAULT_STAMP_COLOR,
   DEFAULT_THRESHOLD,
   DEFAULT_ZOOM,
   MIN_LOCATABLE_DISTANCE,
-  STAMP_COLOR_RED,
   STAMP_IMAGE_SIZE,
 } from '../../constants';
 import useModal from '../../hooks/useModal';
@@ -19,7 +19,6 @@ import NavigationButton from '../parts/NavigationButton';
 import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 import { createImage } from '../../lib/createImage';
-import ColorSelector from '../templates/ColorSelector';
 import StampInputForm from '../templates/StampInputForm';
 import { LatLng, LatLngLiteral } from 'leaflet';
 import { getStampsInBounds } from '../../lib/getStampsInBounds';
@@ -69,7 +68,7 @@ const Create = (props: {
   const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
   const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
   const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
-  const [stampColor, setStampColor] = useState<string>(STAMP_COLOR_RED);
+  const [stampColor, setStampColor] = useState<string>(DEFAULT_STAMP_COLOR);
   const [stampThreshold, setStampThreshold] =
     useState<number>(DEFAULT_THRESHOLD);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -129,10 +128,9 @@ const Create = (props: {
           0.587 * src.data[i + 1] +
           0.114 * src.data[i + 2]
         );
-        const ret = y > stampThreshold ? 255 : 0;
-        dst.data[i] = colorCode[0] || ret;
-        dst.data[i + 1] = colorCode[1] || ret;
-        dst.data[i + 2] = colorCode[2] || ret;
+        dst.data[i] = y > stampThreshold ? 255 : colorCode[0];
+        dst.data[i + 1] = y > stampThreshold ? 255 : colorCode[1];
+        dst.data[i + 2] = y > stampThreshold ? 255 : colorCode[2];
         dst.data[i + 3] = src.data[i + 3];
       }
 
@@ -212,7 +210,13 @@ const Create = (props: {
             setStampThreshold(Number(e.target.value));
           }}
         ></input>
-        <ColorSelector setStampColor={setStampColor}></ColorSelector>
+        <input
+          type='color'
+          defaultValue={DEFAULT_STAMP_COLOR}
+          onBlur={(e) => {
+            setStampColor(e.target.value);
+          }}
+        ></input>
         <StampInputForm
           onFileChange={onFileChange}
           position={new LatLng(currentPos.lat, currentPos.lng)}
