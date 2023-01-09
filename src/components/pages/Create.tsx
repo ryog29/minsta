@@ -19,19 +19,49 @@ import NavigationButton from '../parts/NavigationButton';
 import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 import { createImage } from '../../lib/createImage';
-import StampInputForm from '../templates/StampInputForm';
 import { LatLng, LatLngLiteral } from 'leaflet';
 import { getStampsInBounds } from '../../lib/getStampsInBounds';
+import { useForm } from 'react-hook-form';
+import StampNameInput from '../parts/StampNameInput';
+import CreatorNameInput from '../parts/CreatorNameInput';
+import StampImageInput from '../parts/StampImageInput';
+import { getAddress } from '../../lib/getAddress';
+import {
+  collection,
+  doc,
+  GeoPoint,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
+import { db, storage } from '../../firebase';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { canvasToBlob } from '../../lib/canvasToBlob';
+import * as geofire from 'geofire-common';
+import StampThresholdInput from '../parts/StampThresholdInput';
+import StampReverseColorInput from '../parts/StampReverseColorInput';
+import { splitColorCode } from '../../lib/splitColorCode';
+import StampColorInput from '../parts/StampColorInput';
+import StampSubmitButton from '../parts/StampSubmitButton';
 
 const Create = (props: {
   currentPos: LatLngLiteral;
   setMapState: Dispatch<SetStateAction<MapState>>;
 }) => {
   const { currentPos, setMapState } = props;
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const { Modal, openModal, closeModal } = useModal();
 
+  const [imgUrl, setImgUrl] = useState<string>('');
+  const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
+  const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
+  const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
+  const [stampColor, setStampColor] = useState<string>(DEFAULT_STAMP_COLOR);
+  const [isReverseColor, setIsReverseColor] = useState<boolean>(false);
+  const [stampThreshold, setStampThreshold] =
+    useState<number>(DEFAULT_THRESHOLD);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [isSubmitDisable, setIsSubmitDisable] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
@@ -41,8 +71,6 @@ const Create = (props: {
         zoom: DEFAULT_ZOOM,
       });
 
-      // 現在地から近い位置に既にスタンプがある場合はエラーメッセージを表示
-      // TODO:メッセージはモーダル表示にして作成不可の時はホーム画面に戻すようにする
       const stampsInAvailableArea = await getStampsInBounds(
         [currentPos.lat, currentPos.lng],
         MIN_LOCATABLE_DISTANCE
@@ -59,22 +87,13 @@ const Create = (props: {
         }
       });
       if (res.length !== 0) {
+        setIsSubmitDisable(true);
         setErrorMsg(
           '近くにスタンプがあるためスタンプを作成できません。新しいスタンプを作成するには既存のスタンプから十分に離れてください。'
         );
       }
     })();
   }, []);
-
-  const [imgUrl, setImgUrl] = useState<string>('');
-  const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
-  const [srcCtx, setSrcCtx] = useState<CanvasRenderingContext2D>();
-  const [dstCtx, setDstCtx] = useState<CanvasRenderingContext2D>();
-  const [stampColor, setStampColor] = useState<string>(DEFAULT_STAMP_COLOR);
-  const [isReverseColor, setIsReverseColor] = useState<boolean>(false);
-  const [stampThreshold, setStampThreshold] =
-    useState<number>(DEFAULT_THRESHOLD);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const srcCanvas: HTMLCanvasElement = document.createElement('canvas');
@@ -110,14 +129,6 @@ const Create = (props: {
       }
     })();
   }, [srcCtx, dstCtx, croppedImgUrl]);
-
-  const splitColorCode = (colorCode: string) => {
-    const res = [];
-    res[0] = parseInt(colorCode.slice(1, 3), 16);
-    res[1] = parseInt(colorCode.slice(3, 5), 16);
-    res[2] = parseInt(colorCode.slice(5, 7), 16);
-    return res;
-  };
 
   useEffect(() => {
     if (isLoaded && srcCtx && dstCtx) {
@@ -156,6 +167,12 @@ const Create = (props: {
     }
   }, [isLoaded, srcCtx, dstCtx, stampThreshold, stampColor, isReverseColor]);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: 'onChange', criteriaMode: 'all' });
+
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
@@ -173,78 +190,126 @@ const Create = (props: {
     []
   );
 
+  const onSubmit = handleSubmit(async (data) => {
+    const { stampName, creatorName } = data;
+    const { lat, lng } = currentPos;
+    const address = await getAddress(lat, lng);
+    const stampsCollectionRef = doc(collection(db, 'stamps'));
+    const fileName = `${stampsCollectionRef.id}.png`;
+    const storageRef = ref(storage, `stamp-images/${fileName}`);
+    const dstCanvas: HTMLCanvasElement = document.getElementById(
+      'dstCanvas'
+    ) as HTMLCanvasElement;
+    const blob = await canvasToBlob(dstCanvas);
+    const uploadTask = uploadBytesResumable(storageRef, blob, {
+      contentType: 'image/png',
+    });
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+        console.warn(error);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          await setDoc(stampsCollectionRef, {
+            name: stampName,
+            coordinates: new GeoPoint(lat, lng),
+            geohash: geofire.geohashForLocation([lat, lng]),
+            address: address,
+            imageUrl: downloadUrl,
+            createdBy: creatorName,
+            createdAt: serverTimestamp(),
+            stampedCount: 0,
+          });
+          navigate(`/home`, {
+            state: { from: 'CreateLocation' },
+            replace: true,
+          });
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+    );
+  });
+
   return (
     <>
       <Header className='ml-2 mt-2' />
-      <div className='ml-2'>
+      <div>
         <NavigationButton
-          className='my-1'
+          className='ml-12 mt-8'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Create' }, replace: true });
           }}
         >
           戻る
         </NavigationButton>
-        <h2>スタンプを作成</h2>
-        {errorMsg && <p className='text-red-600'>{errorMsg}</p>}
-        <Modal>
-          <CropperModal
-            imgUrl={imgUrl}
-            setCroppedImgUrl={setCroppedImgUrl}
-            closeModal={closeModal}
+        <h2 className='mt-2 text-2xl font-bold text-center'>スタンプ作成</h2>
+        <form onSubmit={onSubmit} className='flex flex-col items-center'>
+          <StampNameInput
+            register={register}
+            errors={errors}
+            className='mt-2'
           />
-        </Modal>
-        <canvas
-          id='dstCanvas'
-          width={STAMP_IMAGE_SIZE}
-          height={STAMP_IMAGE_SIZE}
-          className='my-10 mx-auto'
-        ></canvas>
-        <div>
-          <input
-            type='range'
-            min='0'
-            max='254'
-            step='1'
-            defaultValue={DEFAULT_THRESHOLD}
-            onChange={(e) => {
-              setStampThreshold(Number(e.target.value));
-            }}
+          <canvas
+            id='dstCanvas'
+            width={STAMP_IMAGE_SIZE}
+            height={STAMP_IMAGE_SIZE}
+            className='my-5 mx-auto'
+          ></canvas>
+          <Modal>
+            <CropperModal
+              imgUrl={imgUrl}
+              setCroppedImgUrl={setCroppedImgUrl}
+              closeModal={closeModal}
+            />
+          </Modal>
+          <StampImageInput
+            onFileChange={onFileChange}
+            register={register}
+            errors={errors}
+            className=''
           />
-        </div>
-        <div>
-          <input
-            type='checkbox'
-            onChange={(e) => {
-              setIsReverseColor(e.target.checked);
-            }}
+          <StampThresholdInput
+            setStampThreshold={setStampThreshold}
+            className='mt-2'
           />
-          <label>色反転</label>
-        </div>
-        <div>
-          <input
-            type='color'
-            defaultValue={DEFAULT_STAMP_COLOR}
-            onBlur={(e) => {
-              const colorCode = splitColorCode(e.target.value);
-              // 色が薄すぎるスタンプを作成できないようにRGB全ての値が同時に200を超えないようチェック
-              const isValid = !colorCode.every((c) => c > 200);
-              if (isValid) {
-                setStampColor(e.target.value);
-                setErrorMsg('');
-              } else {
-                setErrorMsg(
-                  'その色は選択できません。可視性が高い色を選択してください。'
-                );
-                e.target.value = stampColor;
-              }
-            }}
+          <StampReverseColorInput
+            setIsReverseColor={setIsReverseColor}
+            className='mt-2'
           />
-        </div>
-        <StampInputForm
-          onFileChange={onFileChange}
-          position={new LatLng(currentPos.lat, currentPos.lng)}
-        ></StampInputForm>
+          <StampColorInput
+            stampColor={stampColor}
+            setStampColor={setStampColor}
+            setErrorMsg={setErrorMsg}
+            className='mt-2'
+          />
+          <CreatorNameInput
+            register={register}
+            errors={errors}
+            className='mt-2'
+          />
+          <StampSubmitButton
+            isSubmitDisable={isSubmitDisable}
+            className='mt-2'
+          />
+          {errorMsg && <p className='mt-2 text-red-500'>{errorMsg}</p>}
+        </form>
       </div>
     </>
   );

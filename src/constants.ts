@@ -15,7 +15,7 @@ export const AVAILABLE_AREA_RADIUS = 700;
 export const MIN_LOCATABLE_DISTANCE = 50;
 
 // スタンプ情報
-export const STAMP_IMAGE_SIZE = 300;
+export const STAMP_IMAGE_SIZE = 256;
 export const DEFAULT_THRESHOLD = 123;
 export const DEFAULT_STAMP_COLOR = '#FF0000';
 export const MAX_STAMP_NAME_LENGTH = 12;
