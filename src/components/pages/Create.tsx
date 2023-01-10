@@ -285,7 +285,7 @@ const Create = (props: {
           />
           <StampThresholdInput
             setStampThreshold={setStampThreshold}
-            className='mt-2'
+            className='mt-2 w-full text-center'
           />
           <StampReverseColorInput
             setIsReverseColor={setIsReverseColor}
@@ -294,7 +294,6 @@ const Create = (props: {
           <StampColorInput
             stampColor={stampColor}
             setStampColor={setStampColor}
-            setErrorMsg={setErrorMsg}
             className='mt-2'
           />
           <CreatorNameInput
@@ -306,7 +305,9 @@ const Create = (props: {
             isSubmitDisable={isSubmitDisable}
             className='mt-2'
           />
-          {errorMsg && <p className='mt-2 text-red-500 mx-14'>{errorMsg}</p>}
+          {errorMsg && (
+            <div className='mt-2 text-red-500 mx-14'>{errorMsg}</div>
+          )}
         </form>
       </div>
     </>

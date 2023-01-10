@@ -14,13 +14,13 @@ const CreatorNameInput = (props: {
 
   return (
     <div className={className}>
+      <label className='mr-2'>作者名</label>
       <input
-        placeholder='作者名'
         {...register('creatorName', {
           required: true,
           maxLength: MAX_CREATOR_NAME_LENGTH,
         })}
-        className='px-2 py-2 border border-solid border-gray-300 rounded'
+        className='px-1 py-1 border border-solid border-gray-300 rounded text-sm'
       />
       {errors.creatorName?.type === 'required' && (
         <div className='text-red-500'>入力必須の項目です。</div>

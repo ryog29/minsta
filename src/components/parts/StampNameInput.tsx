@@ -20,7 +20,7 @@ const StampNameInput = (props: {
           required: true,
           maxLength: MAX_STAMP_NAME_LENGTH,
         })}
-        className='px-2 py-2 border border-solid border-gray-300 rounded'
+        className='px-2 py-2 border border-solid border-gray-300 rounded font-bold'
       />
       {errors.stampName?.type === 'required' && (
         <div className='text-red-500'>入力必須の項目です。</div>

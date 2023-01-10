@@ -1,14 +1,15 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { DEFAULT_STAMP_COLOR } from '../../constants';
 import { splitColorCode } from '../../lib/splitColorCode';
 
 const StampColorInput = (props: {
   stampColor: string;
   setStampColor: Dispatch<SetStateAction<string>>;
-  setErrorMsg: Dispatch<SetStateAction<string>>;
   className: string;
 }) => {
-  const { stampColor, setStampColor, setErrorMsg, className } = props;
+  const { stampColor, setStampColor, className } = props;
+
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   return (
     <div className={className}>
@@ -24,13 +25,12 @@ const StampColorInput = (props: {
             setStampColor(e.target.value);
             setErrorMsg('');
           } else {
-            setErrorMsg(
-              'その色は選択できません。可視性が高い色を選択してください。'
-            );
+            setErrorMsg('その色は選択できません。');
             e.target.value = stampColor;
           }
         }}
       />
+      {errorMsg && <div className='text-red-500'>{errorMsg}</div>}
     </div>
   );
 };

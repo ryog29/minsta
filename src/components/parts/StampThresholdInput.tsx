@@ -19,6 +19,7 @@ const StampThresholdInput = (props: {
         onChange={(e) => {
           setStampThreshold(Number(e.target.value));
         }}
+        className='w-1/2 h-2 bg-gray-200 rounded-lg appearance-none'
       />
     </div>
   );
