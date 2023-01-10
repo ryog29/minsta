@@ -42,6 +42,7 @@ import { splitColorCode } from '../../lib/splitColorCode';
 import StampColorInput from '../parts/StampColorInput';
 import StampSubmitButton from '../parts/StampSubmitButton';
 import BackButton from '../parts/BackButton';
+import useErrorModal from '../../hooks/useErrorModal';
 
 const Create = (props: {
   currentPos: LatLngLiteral;
@@ -51,6 +52,9 @@ const Create = (props: {
 
   const navigate = useNavigate();
   const { Modal, openModal, closeModal } = useModal();
+  const { ErrorModal, openErrorModal } = useErrorModal(() =>
+    navigate(`/home`, { state: { from: 'Create' }, replace: true })
+  );
 
   const [imgUrl, setImgUrl] = useState<string>('');
   const [croppedImgUrl, setCroppedImgUrl] = useState<string>('');
@@ -61,8 +65,6 @@ const Create = (props: {
   const [stampThreshold, setStampThreshold] =
     useState<number>(DEFAULT_THRESHOLD);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [isSubmitDisable, setIsSubmitDisable] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
     (async () => {
@@ -87,10 +89,7 @@ const Create = (props: {
         }
       });
       if (res.length !== 0) {
-        setIsSubmitDisable(true);
-        setErrorMsg(
-          '近くにスタンプがあるためスタンプを作成できません。新しいスタンプを作成するには既存のスタンプから十分に離れてください。'
-        );
+        openErrorModal();
       }
     })();
   }, []);
@@ -237,7 +236,7 @@ const Create = (props: {
             stampedCount: 0,
           });
           navigate(`/home`, {
-            state: { from: 'CreateLocation' },
+            state: { from: 'Create' },
             replace: true,
           });
         } catch (error) {
@@ -270,13 +269,6 @@ const Create = (props: {
             height={STAMP_IMAGE_SIZE}
             className='my-2 mx-auto'
           ></canvas>
-          <Modal>
-            <CropperModal
-              imgUrl={imgUrl}
-              setCroppedImgUrl={setCroppedImgUrl}
-              closeModal={closeModal}
-            />
-          </Modal>
           <StampImageInput
             onFileChange={onFileChange}
             register={register}
@@ -301,14 +293,22 @@ const Create = (props: {
             errors={errors}
             className='mt-2'
           />
-          <StampSubmitButton
-            isSubmitDisable={isSubmitDisable}
-            className='mt-2'
-          />
-          {errorMsg && (
-            <div className='mt-2 text-red-500 mx-14'>{errorMsg}</div>
-          )}
+          <StampSubmitButton className='mt-2' />
         </form>
+        <Modal>
+          <CropperModal
+            imgUrl={imgUrl}
+            setCroppedImgUrl={setCroppedImgUrl}
+            closeModal={closeModal}
+          />
+        </Modal>
+        <ErrorModal>
+          <div className='text-red-500 mx-4 my-4'>
+            近くにスタンプがあるためスタンプを作成できません。
+            <br />
+            新しいスタンプを作成するには既存のスタンプから十分に離れてください。
+          </div>
+        </ErrorModal>
       </div>
     </>
   );
