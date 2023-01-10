@@ -15,7 +15,6 @@ import {
 } from '../../constants';
 import useModal from '../../hooks/useModal';
 import { MapState } from '../../types';
-import NavigationButton from '../parts/NavigationButton';
 import CropperModal from '../templates/CropperModal';
 import Header from '../templates/Header';
 import { createImage } from '../../lib/createImage';
@@ -42,6 +41,7 @@ import StampReverseColorInput from '../parts/StampReverseColorInput';
 import { splitColorCode } from '../../lib/splitColorCode';
 import StampColorInput from '../parts/StampColorInput';
 import StampSubmitButton from '../parts/StampSubmitButton';
+import BackButton from '../parts/BackButton';
 
 const Create = (props: {
   currentPos: LatLngLiteral;
@@ -249,17 +249,15 @@ const Create = (props: {
 
   return (
     <>
-      <Header className='ml-2 mt-2' />
+      <Header className='mt-4 ml-4' />
       <div>
-        <NavigationButton
-          className='ml-12 mt-8'
+        <BackButton
+          className='ml-12 mt-4'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Create' }, replace: true });
           }}
-        >
-          戻る
-        </NavigationButton>
-        <h2 className='mt-2 text-2xl font-bold text-center'>スタンプ作成</h2>
+        />
+        <h2 className='text-xl font-bold text-center'>スタンプ作成</h2>
         <form onSubmit={onSubmit} className='flex flex-col items-center'>
           <StampNameInput
             register={register}
@@ -270,7 +268,7 @@ const Create = (props: {
             id='dstCanvas'
             width={STAMP_IMAGE_SIZE}
             height={STAMP_IMAGE_SIZE}
-            className='my-5 mx-auto'
+            className='my-2 mx-auto'
           ></canvas>
           <Modal>
             <CropperModal
@@ -308,7 +306,7 @@ const Create = (props: {
             isSubmitDisable={isSubmitDisable}
             className='mt-2'
           />
-          {errorMsg && <p className='mt-2 text-red-500'>{errorMsg}</p>}
+          {errorMsg && <p className='mt-2 text-red-500 mx-14'>{errorMsg}</p>}
         </form>
       </div>
     </>

@@ -4,9 +4,7 @@ const Header = (props: { className: string }) => {
   return (
     <div className={props.className}>
       <Link to={'/'} replace={true}>
-        <h1 className='text-3xl text-black font-bold'>
-          minsta ({import.meta.env.MODE})
-        </h1>
+        <h1 className='text-2xl text-black font-bold'>minsta</h1>
       </Link>
     </div>
   );
