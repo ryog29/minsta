@@ -141,7 +141,7 @@ const Home = (props: {
         minZoom={MIN_ZOOM}
         zoomControl={false}
         ref={setMap}
-        className={'absolute z-0 w-full h-screen'}
+        className={'absolute z-0 w-full h-full'}
       >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
