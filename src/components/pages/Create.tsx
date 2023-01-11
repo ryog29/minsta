@@ -7,7 +7,6 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  DEFAULT_CREATOR_NAME,
   DEFAULT_STAMP_COLOR,
   DEFAULT_THRESHOLD,
   DEFAULT_ZOOM,
@@ -232,7 +231,7 @@ const Create = (props: {
             geohash: geofire.geohashForLocation([lat, lng]),
             address: address,
             imageUrl: downloadUrl,
-            createdBy: creatorName || DEFAULT_CREATOR_NAME,
+            createdBy: creatorName,
             createdAt: serverTimestamp(),
             stampedCount: 0,
           });
