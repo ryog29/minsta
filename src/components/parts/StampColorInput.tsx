@@ -13,7 +13,6 @@ const StampColorInput = (props: {
 
   return (
     <div className={className}>
-      <label className='mr-2'>スタンプカラー</label>
       <input
         type='color'
         defaultValue={DEFAULT_STAMP_COLOR}

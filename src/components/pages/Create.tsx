@@ -280,15 +280,17 @@ const Create = (props: {
             setStampThreshold={setStampThreshold}
             className='mt-2'
           />
-          <StampReverseColorInput
-            setIsReverseColor={setIsReverseColor}
-            className='mt-2'
-          />
-          <StampColorInput
-            stampColor={stampColor}
-            setStampColor={setStampColor}
-            className='mt-2'
-          />
+          <div className='mt-2 flex'>
+            <StampColorInput
+              stampColor={stampColor}
+              setStampColor={setStampColor}
+              className='mr-8'
+            />
+            <StampReverseColorInput
+              setIsReverseColor={setIsReverseColor}
+              className='mt-1'
+            />
+          </div>
           <CreatorNameInput
             register={register}
             errors={errors}

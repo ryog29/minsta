@@ -8,7 +8,7 @@ const StampReverseColorInput = (props: {
 
   return (
     <div className={className}>
-      <label className='mr-2'>色反転</label>
+      <label className='mr-1'>色反転</label>
       <input
         type='checkbox'
         onChange={(e) => {
