@@ -30,7 +30,9 @@ const StampColorInput = (props: {
           }
         }}
       />
-      {errorMsg && <div className='text-red-500'>{errorMsg}</div>}
+      {errorMsg && (
+        <div className='text-red-500 text-xs text-center'>{errorMsg}</div>
+      )}
     </div>
   );
 };

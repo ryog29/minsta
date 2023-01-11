@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  DEFAULT_CREATOR_NAME,
   DEFAULT_STAMP_COLOR,
   DEFAULT_THRESHOLD,
   DEFAULT_ZOOM,
@@ -231,7 +232,7 @@ const Create = (props: {
             geohash: geofire.geohashForLocation([lat, lng]),
             address: address,
             imageUrl: downloadUrl,
-            createdBy: creatorName,
+            createdBy: creatorName || DEFAULT_CREATOR_NAME,
             createdAt: serverTimestamp(),
             stampedCount: 0,
           });
@@ -277,7 +278,7 @@ const Create = (props: {
           />
           <StampThresholdInput
             setStampThreshold={setStampThreshold}
-            className='mt-2 w-full text-center'
+            className='mt-2'
           />
           <StampReverseColorInput
             setIsReverseColor={setIsReverseColor}

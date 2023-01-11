@@ -21,10 +21,12 @@ const StampImageInput = (props: {
         type='file'
         accept='image/*'
         onChange={onFileChange}
-        className='text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50'
+        className='w-64 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50'
       />
       {errors.stampImage?.type === 'required' && (
-        <div className='text-red-500'>ファイルを選択してください。</div>
+        <div className='text-red-500 text-xs text-center'>
+          ファイルを選択してください。
+        </div>
       )}
     </div>
   );

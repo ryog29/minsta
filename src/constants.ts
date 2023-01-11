@@ -20,6 +20,7 @@ export const DEFAULT_THRESHOLD = 123;
 export const DEFAULT_STAMP_COLOR = '#FF0000';
 export const MAX_STAMP_NAME_LENGTH = 12;
 export const MAX_CREATOR_NAME_LENGTH = 12;
+export const DEFAULT_CREATOR_NAME = '匿名';
 
 // 初回フェッチ範囲のズームレベル
 export const INIT_FETCH_ZOOM = 13;

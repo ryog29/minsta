@@ -20,13 +20,16 @@ const StampNameInput = (props: {
           required: true,
           maxLength: MAX_STAMP_NAME_LENGTH,
         })}
-        className='px-2 py-2 border border-solid border-gray-300 rounded font-bold'
+        className='w-64 px-2 py-2 border border-solid border-gray-300 rounded font-bold text-center'
+        maxLength={MAX_STAMP_NAME_LENGTH}
       />
       {errors.stampName?.type === 'required' && (
-        <div className='text-red-500'>入力必須の項目です。</div>
+        <div className='text-red-500 text-xs text-center'>
+          入力必須の項目です。
+        </div>
       )}
       {errors.stampName?.type === 'maxLength' && (
-        <div className='text-red-500'>
+        <div className='text-red-500 text-xs text-center'>
           {MAX_STAMP_NAME_LENGTH}文字以内で入力してください。
         </div>
       )}
