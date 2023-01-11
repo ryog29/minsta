@@ -6,7 +6,7 @@ const Top = () => {
   const navigate = useNavigate();
   return (
     <>
-      <Header className='ml-2 mt-2' />
+      <Header className='ml-4 mt-4' />
       <div className='ml-2'>
         <h2 className='mt-2 text-2xl font-bold'>トップ</h2>
         <NavigationButton

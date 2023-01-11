@@ -18,7 +18,7 @@ const Help = (props: { setMapState: Dispatch<SetStateAction<MapState>> }) => {
 
   return (
     <>
-      <Header className='ml-2 mt-2' />
+      <Header className='ml-4 mt-4' />
       <div className='ml-2'>
         <NavigationButton
           className='my-1'

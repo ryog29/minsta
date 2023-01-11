@@ -107,7 +107,7 @@ const StampDetail = (props: {
 
   return (
     <>
-      <Header className='ml-2 mt-2' />
+      <Header className='ml-4 mt-4' />
       <div>
         <NavigationButton
           className='ml-12 mt-8'

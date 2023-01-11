@@ -133,7 +133,7 @@ const Home = (props: {
 
   return (
     <div>
-      <Header className={'absolute z-10 ml-2 mt-2'} />
+      <Header className={'absolute z-10 ml-4 mt-4'} />
       <MapContainer
         center={mapState.center}
         zoom={mapState.zoom}
