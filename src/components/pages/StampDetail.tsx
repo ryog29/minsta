@@ -13,7 +13,7 @@ import { db } from '../../firebase';
 import { idb } from '../../idb';
 import { formatDate } from '../../lib/formatDate';
 import { MapState, Stamp } from '../../types';
-import NavigationButton from '../parts/NavigationButton';
+import BackButton from '../parts/BackButton';
 import TapButton from '../parts/TapButton';
 import Header from '../templates/Header';
 
@@ -109,8 +109,8 @@ const StampDetail = (props: {
     <>
       <Header className='ml-4 mt-4' />
       <div>
-        <NavigationButton
-          className='ml-12 mt-8'
+        <BackButton
+          className='ml-12 mt-4'
           onClick={() => {
             if (location.state?.from === 'Home') {
               navigate(`/home`, {
@@ -126,16 +126,14 @@ const StampDetail = (props: {
               navigate(`/`, { state: { from: 'StampDetail' }, replace: true });
             }
           }}
-        >
-          戻る
-        </NavigationButton>
+        />
         {stamp && (
-          <div className='flex flex-col items-center mt-2'>
-            <h2 className='text-3xl font-bold'>{stamp.name}</h2>
+          <div className='flex flex-col items-center'>
+            <h2 className='text-xl font-bold'>{stamp.name}</h2>
             {stamp.isStamped ? (
-              <img className='mt-5 w-64 h-64' src={stamp.imageUrl}></img>
+              <img className='my-2 w-64 h-64' src={stamp.imageUrl}></img>
             ) : isAvailable ? (
-              <TapButton className='mt-5' onClick={getStamp} />
+              <TapButton className='my-2' onClick={getStamp} />
             ) : (
               <p className='my-24 font-bold text-red-600'>
                 スタンプから離れすぎています。
@@ -145,7 +143,7 @@ const StampDetail = (props: {
                 {distanceFromStamp}m以上近づいてください。
               </p>
             )}
-            <ul className='mt-5 font-bold'>
+            <ul className='font-bold'>
               <li>場所: {stamp.address}</li>
               <li>作成者: {stamp.createdBy}</li>
               <li>押された回数: {stamp.stampedCount}</li>

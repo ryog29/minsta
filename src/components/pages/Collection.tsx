@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { idb } from '../../idb';
 import { MapState } from '../../types';
-import NavigationButton from '../parts/NavigationButton';
+import BackButton from '../parts/BackButton';
 import Header from '../templates/Header';
 
 const Collection = (props: {
@@ -30,15 +30,13 @@ const Collection = (props: {
     <>
       <Header className='ml-4 mt-4' />
       <div>
-        <NavigationButton
-          className='ml-12 mt-8'
+        <BackButton
+          className='ml-12 mt-4'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Collection' }, replace: true });
           }}
-        >
-          戻る
-        </NavigationButton>
-        <h2 className='mt-3 text-2xl font-bold text-center'>
+        />
+        <h2 className='text-xl font-bold text-center'>
           集めたスタンプ: {stamps?.length}個
         </h2>
         <div className='mt-2 mx-12 grid grid-cols-3'>

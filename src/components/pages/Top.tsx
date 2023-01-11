@@ -7,10 +7,9 @@ const Top = () => {
   return (
     <>
       <Header className='ml-4 mt-4' />
-      <div className='ml-2'>
-        <h2 className='mt-2 text-2xl font-bold'>トップ</h2>
+      <div>
         <NavigationButton
-          className='my-1'
+          className='mt-20 text-center'
           onClick={() => {
             navigate(`/home`, { state: { from: 'Top' }, replace: true });
           }}
